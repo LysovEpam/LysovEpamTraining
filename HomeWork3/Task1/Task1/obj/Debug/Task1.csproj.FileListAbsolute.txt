@@ -1,0 +1,5 @@
+C:\_Training\Git\HomeWork3\Task1\Task1\bin\Debug\Task1.exe.config
+C:\_Training\Git\HomeWork3\Task1\Task1\bin\Debug\Task1.exe
+C:\_Training\Git\HomeWork3\Task1\Task1\bin\Debug\Task1.pdb
+C:\_Training\Git\HomeWork3\Task1\Task1\obj\Debug\Task1.exe
+C:\_Training\Git\HomeWork3\Task1\Task1\obj\Debug\Task1.pdb
