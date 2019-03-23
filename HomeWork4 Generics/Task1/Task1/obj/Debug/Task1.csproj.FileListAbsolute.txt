@@ -1,0 +1,6 @@
+C:\_Training\Git\HomeWork4 Generics\Task1\Task1\bin\Debug\Task1.exe.config
+C:\_Training\Git\HomeWork4 Generics\Task1\Task1\bin\Debug\Task1.exe
+C:\_Training\Git\HomeWork4 Generics\Task1\Task1\bin\Debug\Task1.pdb
+C:\_Training\Git\HomeWork4 Generics\Task1\Task1\obj\Debug\Task1.csprojResolveAssemblyReference.cache
+C:\_Training\Git\HomeWork4 Generics\Task1\Task1\obj\Debug\Task1.exe
+C:\_Training\Git\HomeWork4 Generics\Task1\Task1\obj\Debug\Task1.pdb
