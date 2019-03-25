@@ -1,3 +1,5 @@
+.gitignore
+
 # HomeWork 1 Files
 
 HomeWork/Lab4HomeWork/.vs
@@ -18,6 +20,12 @@ HomeWork2
 HomeWork3/Task1
 HomeWork3/Task2
 HomeWork3
+
+# HomeWork 3 - Done, no need to follow
+
+HomeWork4 Generics/Task1
+HomeWork4 Generics/Task2
+HomeWork4 Generics
 
 
 

@@ -1,0 +1,5 @@
+C:\_Training\Git\HomeWork5 txtFile\PackFile\PackFile\bin\Debug\PackFile.exe.config
+C:\_Training\Git\HomeWork5 txtFile\PackFile\PackFile\bin\Debug\PackFile.exe
+C:\_Training\Git\HomeWork5 txtFile\PackFile\PackFile\bin\Debug\PackFile.pdb
+C:\_Training\Git\HomeWork5 txtFile\PackFile\PackFile\obj\Debug\PackFile.exe
+C:\_Training\Git\HomeWork5 txtFile\PackFile\PackFile\obj\Debug\PackFile.pdb
