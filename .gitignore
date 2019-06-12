@@ -6,4 +6,31 @@ HomeWork3
 HomeWork4 Generics
 HomeWork5 txtFile
 
+OnlineStore\Api\BL.OnlineStore\obj
+OnlineStore\Api\BL.OnlineStore\bin
+
+OnlineStore\Api\Bl.OnlineStore.Tests\obj
+OnlineStore\Api\Bl.OnlineStore.Tests\bin
+
+OnlineStore\Api\BLContracts\obj
+OnlineStore\Api\BLContracts\bin
+
+OnlineStore\Api\CommonEntities\obj
+OnlineStore\Api\CommonEntities\bin
+
+OnlineStore\Api\DAL.OnlineStore\obj
+OnlineStore\Api\DAL.OnlineStore\bin
+
+OnlineStore\Api\DALContracts\obj
+OnlineStore\Api\DALContracts\bin
+
+OnlineStore\Api\OnlineStore\obj
+OnlineStore\Api\OnlineStore\bin
+
+OnlineStore\Api\StoreWebApi\obj
+OnlineStore\Api\StoreWebApi\bin
+
+OnlineStore\Api\StoreWebApi\obj
+OnlineStore\Api\StoreWebApi\bin
+
 
