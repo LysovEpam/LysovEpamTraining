@@ -25,7 +25,7 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock
 		}
 
 		
-		public IRepositoryUserAccess UserAccesses => _dbContext.UserAccesses;
+		public IRepositoryUserAdmittance UserAdmittances => _dbContext.UserAdmittances;
 		public IRepositoryUserSystem UsersSystem => _dbContext.UsersSystem;
 		public IRepositoryUserAuthorizationToken UserAuthorizationsToken => _dbContext.UserAuthorizationsToken;
 		public IRepository<ProductCategory> ProductCategories
@@ -104,6 +104,6 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock
 			}
 		}
 
-		public event RepositoryEvent RepositoryEvent;
+		
 	}
 }

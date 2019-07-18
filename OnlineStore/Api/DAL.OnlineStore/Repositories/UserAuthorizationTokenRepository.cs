@@ -14,21 +14,23 @@ namespace DAL.OnlineStore.Repositories
 
 		#region Stored procedure names
 
-		const string SpCancelSessionKey = @"UserAuthorization_CancelSessionKey";
-		private const string SpSelectByToken = "UserAuthorizationToken_SelectByToken";
-		const string SpInsert = @"UserAuthorization_Insert";
-		const string SpUpdate = @"UserAuthorization_Update";
-		const string SpDelete = @"UserAuthorization_Delete";
-		const string SpSelectById = @"UserAuthorization_SelectById";
-		const string SpSelectAll = @"UserAuthorization_SelectById";
+		const string SpCancelSessionKey = @"UserAuthorizationToken_CancelSessionKey";
+		const string SpSelectByToken = @"UserAuthorizationToken_SelectByToken";
+		const string SpInsert = @"UserAuthorizationToken_Insert";
+		const string SpUpdate = @"UserAuthorizationToken_Update";
+		const string SpDelete = @"UserAuthorizationToken_Delete";
+		const string SpSelectById = @"UserAuthorizationToken_SelectById";
+		const string SpSelectAll = @"UserAuthorizationToken_SelectById";
 
 		#endregion
 
 		private readonly string _connectionString;
+		private readonly UserSystemRepository _repositorySystemRepository;
 
-		public UserAuthorizationTokenRepository(string connectionString) : base(connectionString)
+		public UserAuthorizationTokenRepository(string connectionString, UserSystemRepository userSystemRepository) : base(connectionString)
 		{
 			_connectionString = connectionString;
+			_repositorySystemRepository = userSystemRepository;
 		}
 
 
@@ -55,10 +57,7 @@ namespace DAL.OnlineStore.Repositories
 				Value = newStatus.GetStatusName()
 			};
 
-			//object resultCommand =
-			//ExecuteCommand(sqlExpression, idParam, oldStatusParam, finishKeyParam, newStatusParam);
-			ExecuteCommand(SpCancelSessionKey, idParam, oldStatusParam,
-				finishKeyParam, newStatusParam);
+			ExecuteCommand(SpCancelSessionKey, idParam, oldStatusParam, finishKeyParam, newStatusParam);
 
 			return true;
 
@@ -67,7 +66,7 @@ namespace DAL.OnlineStore.Repositories
 		{
 			if (!userSystem.IdEntity.HasValue)
 				throw new ArgumentException($"Parameter {nameof(userSystem.IdEntity)} must be not empty", nameof(userSystem.IdEntity));
-			
+
 			var idParam = new SqlParameter
 			{
 				ParameterName = "@IdEntity",
@@ -89,7 +88,6 @@ namespace DAL.OnlineStore.Repositories
 				Value = newStatus.GetStatusName()
 			};
 
-			//object resultCommand = ExecuteCommand(sqlExpression, idParam, oldStatusParam, finishKeyParam, newStatusParam);
 			ExecuteCommand(SpCancelSessionKey, idParam, oldStatusParam, finishKeyParam, newStatusParam);
 
 			return true;
@@ -107,7 +105,7 @@ namespace DAL.OnlineStore.Repositories
 
 			return result;
 
-			
+
 		}
 
 		public int? Insert(UserAuthorizationToken item)
@@ -130,7 +128,7 @@ namespace DAL.OnlineStore.Repositories
 			var statusParam = new SqlParameter
 			{
 				ParameterName = "@Status",
-				Value = item.Status
+				Value = item.AuthorizationStatus.GetStatusName()
 			};
 			var userIdParam = new SqlParameter
 			{
@@ -144,7 +142,10 @@ namespace DAL.OnlineStore.Repositories
 			int? result = null;
 
 			if (resultCommand != null)
-				result = (int)resultCommand;
+			{
+				decimal lastId = (decimal)resultCommand;
+				result = Decimal.ToInt32(lastId);
+			}
 
 			return result;
 		}
@@ -152,7 +153,7 @@ namespace DAL.OnlineStore.Repositories
 		{
 			if (!item.IdEntity.HasValue)
 				throw new ArgumentException($"Parameter {nameof(item.IdEntity)} must be not empty", nameof(item.IdEntity));
-			
+
 			var idParam = new SqlParameter
 			{
 				ParameterName = "@IdEntity",
@@ -176,7 +177,7 @@ namespace DAL.OnlineStore.Repositories
 			var statusParam = new SqlParameter
 			{
 				ParameterName = "@Status",
-				Value = item.Status
+				Value = item.AuthorizationStatus.GetStatusName()
 			};
 			var userIdParam = new SqlParameter
 			{
@@ -184,10 +185,9 @@ namespace DAL.OnlineStore.Repositories
 				Value = item.UserId
 			};
 
-			//object resultCommand = ExecuteCommand(sqlExpression, idParam, startParam, finishParam, keyParam, statusParam, userIdParam);
-			ExecuteCommand(SpUpdate, idParam, startParam, finishParam, tokenParam, statusParam, userIdParam);
+			var resultCommand = ExecuteCommand(SpUpdate, idParam, startParam, finishParam, tokenParam, statusParam, userIdParam);
 
-			return true;
+			return resultCommand != null && (int)resultCommand == 1;
 		}
 		public bool Delete(int id)
 		{
@@ -198,9 +198,9 @@ namespace DAL.OnlineStore.Repositories
 			};
 
 			//object result = ExecuteCommand(sqlExpression, idParam);
-			ExecuteCommand(SpDelete, idParam);
+			var resultCommand = ExecuteCommand(SpDelete, idParam);
 
-			return true;
+			return resultCommand != null && (int)resultCommand == 1;
 		}
 
 		public UserAuthorizationToken SelectById(int id)
@@ -231,7 +231,7 @@ namespace DAL.OnlineStore.Repositories
 		}
 
 
-		
+
 		private List<UserAuthorizationToken> ReadUserAuthorizations(string storedProcedureName, params SqlParameter[] sqlParameters)
 		{
 			var userAuthorizations = new List<UserAuthorizationToken>();
@@ -254,7 +254,7 @@ namespace DAL.OnlineStore.Repositories
 				{
 					while (reader.Read())
 					{
-
+						
 						int readId = reader.GetInt32(0);
 						DateTime readDateStart = reader.GetDateTime(1);
 						DateTime readDateFinish = reader.GetDateTime(2);
@@ -262,10 +262,12 @@ namespace DAL.OnlineStore.Repositories
 						string readStatus = reader.GetString(4);
 						int readUserId = reader.GetInt32(5);
 
-						UserAuthorizationToken userAuthorizationToken = new UserAuthorizationToken(readId, readDateStart,
-							readDateFinish, readToken, readStatus, readUserId);
+						UserSystem user = _repositorySystemRepository.SelectById(readUserId);
 
-						userAuthorizations.Add(userAuthorizationToken);
+						UserAuthorizationToken userAuthorization = new UserAuthorizationToken(readId, readDateStart,
+							readDateFinish, readToken, readStatus, user);
+
+						userAuthorizations.Add(userAuthorization);
 
 					}
 				}
@@ -304,7 +306,10 @@ namespace DAL.OnlineStore.Repositories
 						string readStatus = reader.GetString(4);
 						int readUserId = reader.GetInt32(5);
 
-						UserAuthorizationToken userAuthorizationToken = new UserAuthorizationToken(readId, readDateStart, readDateFinish, readKey, readStatus, readUserId);
+						UserSystem user = _repositorySystemRepository.SelectById(readUserId);
+
+
+						UserAuthorizationToken userAuthorizationToken = new UserAuthorizationToken(readId, readDateStart, readDateFinish, readKey, readStatus, user);
 
 						return userAuthorizationToken;
 
@@ -317,6 +322,9 @@ namespace DAL.OnlineStore.Repositories
 			return null;
 		}
 
-
+		public int GetCountDependencies(int id)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

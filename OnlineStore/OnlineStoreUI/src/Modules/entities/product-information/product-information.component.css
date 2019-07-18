@@ -1,0 +1,43 @@
+
+.main-outlet-container {
+    display: flex;
+    flex-direction: column;
+    /* margin-left: 20px;
+    margin-right: 20px; */
+  }
+  .message-error{
+    color: red;}
+
+    .image{
+      max-width: 200px;
+      max-height: 200px;
+    }
+
+    .input-image-url{
+        margin-top: 10px;
+        margin-bottom: 10px;
+        
+        background: #aaaaaa88;
+        font-size: 16px;
+    }
+
+    .flex-container{
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container-select-category{
+      padding: 10px;
+      background: #aaaaaa46;
+    }
+    .container-card-item{
+        background: #4a644433;    
+         margin:3px; 
+      }
+      .card-item-action{
+        background: #dd5a5a36;
+      }
+
+      
+
+

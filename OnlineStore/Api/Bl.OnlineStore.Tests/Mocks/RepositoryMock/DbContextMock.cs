@@ -9,7 +9,7 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock
 	{
 		
 
-		private UserAccessRepositoryMock _userAccessRepositoryMock;
+		private UserAdmittanceRepositoryMock _userAdmittanceRepositoryMock;
 		private UserSystemRepositoryMock _userSystemRepositoryMock;
 		private UserAuthorizationTokenRepositoryMock _userAuthorizationTokenRepositoryMock;
 		private ProductCategoryRepositoryMock _productCategoryRepositoryMock;
@@ -19,14 +19,14 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock
 
 
 		
-		public IRepositoryUserAccess UserAccesses
+		public IRepositoryUserAdmittance UserAdmittances
 		{
 			get
 			{
-				if (_userAccessRepositoryMock == null)
-					_userAccessRepositoryMock = new UserAccessRepositoryMock();
+				if (_userAdmittanceRepositoryMock == null)
+					_userAdmittanceRepositoryMock = new UserAdmittanceRepositoryMock();
 
-				return _userAccessRepositoryMock;
+				return _userAdmittanceRepositoryMock;
 			}
 		}
 		public IRepositoryUserSystem UsersSystem
@@ -34,7 +34,7 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock
 			get
 			{
 				if (_userSystemRepositoryMock == null)
-					_userSystemRepositoryMock = new UserSystemRepositoryMock(UserAccesses);
+					_userSystemRepositoryMock = new UserSystemRepositoryMock(UserAdmittances);
 
 				return _userSystemRepositoryMock;
 			}
@@ -91,6 +91,6 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock
 			}
 		}
 
-		public event RepositoryEvent RepositoryEvent;
+		
 	}
 }

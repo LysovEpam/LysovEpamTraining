@@ -6,16 +6,14 @@ namespace CommonEntities.Additional
 	public class ProductStatus
 	{
 		public const string StatusAvailable = "Available";
+		public const string StatusNeedToOrder = "NeedToOrder";
 		public const string StatusNotAvailable = "NotAvailable";
-		public const string StatusReserved = "Reserved";
-		public const string StatusSoldOut = "SoldOut";
-
+		
 		public enum StatusEnum
 		{
-			Available,
-			NotAvailable,
-			StatusReserved,
-			SoldOut
+			Available = 10,
+			NeedToOrder = 11,
+			NotAvailable = 12
 		}
 
 		public StatusEnum Status { get; }
@@ -35,16 +33,15 @@ namespace CommonEntities.Additional
 		{
 			return GetStatusName(Status);
 		}
-		#region Статические методы получения статуса
+		
 
 		public static string GetStatusName(StatusEnum status)
 		{
 			switch (status)
 			{
 				case StatusEnum.Available: return StatusAvailable;
+				case StatusEnum.NeedToOrder: return StatusNeedToOrder;
 				case StatusEnum.NotAvailable: return StatusNotAvailable;
-				case StatusEnum.StatusReserved: return StatusReserved;
-				case StatusEnum.SoldOut: return StatusSoldOut;
 				default: throw new ArgumentOutOfRangeException(nameof(status), status, null);
 			}
 		}
@@ -53,13 +50,12 @@ namespace CommonEntities.Additional
 			switch (status)
 			{
 				case StatusAvailable: return StatusEnum.Available;
+				case StatusNeedToOrder: return StatusEnum.NeedToOrder;
 				case StatusNotAvailable: return StatusEnum.NotAvailable;
-				case StatusReserved: return StatusEnum.StatusReserved;
-				case StatusSoldOut: return StatusEnum.SoldOut;
 				default: throw new ArgumentOutOfRangeException(nameof(status), status, null);
 			}
 		}
 
-		#endregion
+		
 	}
 }

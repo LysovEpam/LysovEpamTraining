@@ -1,18 +1,22 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Web.Http;
+using System.Web.Http.Cors;
 using BL.OnlineStore;
-using BL.OnlineStore.BlModels.MainBlModels;
-using BL.OnlineStore.BlModels.SystemBlModels;
+using BL.OnlineStore.Services.MainServices;
+using BL.OnlineStore.Services.SystemServices;
 using BL.OnlineStore.Tests.Mocks;
 using BLContracts;
-using BLContracts.MainBl;
-using BLContracts.SystemBl;
+using BLContracts.MainService;
+using BLContracts.SystemService;
 using DAL.OnlineStore;
 using DALContracts;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -28,11 +32,27 @@ namespace StoreWebApi
 			Configuration = configuration;
 		}
 
+		private const string CorsPolicy = "CorsPolicy";
+
 		public IConfiguration Configuration { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+
+
+			services.AddCors();
+
+
+			// Add framework services.
+			services.AddMvc();
+
+			services.Configure<MvcOptions>(options =>
+			{
+				options.Filters.Add(new CorsAuthorizationFilterFactory("MyPolicy"));
+			});
+
+
 			#region JWT Authentication
 
 			const string signingSecurityKey = AuthorizationDataModel.SigningSecurityKey;
@@ -40,7 +60,7 @@ namespace StoreWebApi
 			var signingKey = new SigningSymmetricKey(signingSecurityKey);
 			services.AddSingleton<IJwtSigningEncodingKey>(signingKey);
 
-			
+
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
@@ -65,9 +85,9 @@ namespace StoreWebApi
 
 				ClockSkew = TimeSpan.FromSeconds(5)
 			};
-			
+
 			services
-				.AddAuthentication(options => 
+				.AddAuthentication(options =>
 				{
 					options.DefaultAuthenticateScheme = jwtSchemeName;
 					options.DefaultChallengeScheme = jwtSchemeName;
@@ -78,35 +98,61 @@ namespace StoreWebApi
 					});
 
 			#endregion
+			#region DI
+
+
+
 
 			//================================================================================================
-			//DI
+			//DI old
 
+			//string stringConnection =@"Data Source=(local)\SQLEXPRESS; Initial Catalog=OnlineStore; Integrated Security=True";
+			//IPasswordHash passwordHash = new PasswordHash();
+			//IDbContext dbContext = new DbContext(stringConnection);
+			//var registrationBlModel = new RegistrationService(passwordHash, dbContext);
+			//var authorizationBlModel = new AuthorizationService(dbContext, passwordHash);
+			//var productCategoryBlModel = new ProductCategoryService(dbContext);
+			//var productInformationBlModel = new ProductInformationService(dbContext);
+			//var productBlModel = new ProductService(dbContext);
+			//var userOrderBlModel = new UserOrderService(dbContext);
+			//services.AddTransient<IRegistrationService>(s => registrationBlModel);
+			//services.AddTransient<IAuthorizationService>(s => authorizationBlModel);
+			//services.AddTransient<IProductCategoryService>(s => productCategoryBlModel);
+			//services.AddTransient<IProductInformationService>(s => productInformationBlModel);
+			//services.AddTransient<IProductService>(s => productBlModel);
+			//services.AddTransient<IUserOrderService>(s => userOrderBlModel);
+
+
+
+
+			//DI new 
 			string stringConnection = @"Data Source=(local)\SQLEXPRESS; Initial Catalog=OnlineStore; Integrated Security=True";
 
-			IPasswordHash passwordHash = new PasswordHashMock();
-			IDbContext dbContext = new DbContext(stringConnection);
-			IProgramLogRegister logRegister = new ProgramLogRegister();
-			 
+			services.AddTransient<IPasswordHash, PasswordHash>();
+			services.AddTransient<IDbContext>(s=> new DbContext(stringConnection));
 
-			var registrationBlModel = new RegistrationBlModel(passwordHash, dbContext, logRegister);
-			var authorizationBlModel = new AuthorizationBlModel(dbContext, passwordHash, logRegister);
-			var productCategoryBlModel = new ProductCategoryBlModel(dbContext, logRegister);
-			var imageProductBl = new ImageProductBlModel(logRegister, "localhost", "controllerPath");
-			var productInformationBlModel = new ProductInformationDlModel(dbContext, logRegister);
-			var productBlModel = new ProductDlModel(dbContext, logRegister);
-			var userOrderBlModel = new UserOrderBlModel(dbContext, logRegister);
+			services.AddTransient<IRegistrationService, RegistrationService>();
+			services.AddTransient<IAuthorizationService, AuthorizationService>();
+			services.AddTransient<IProductCategoryService, ProductCategoryService>();
+			services.AddTransient<IProductInformationService, ProductInformationService>();
+			services.AddTransient<IProductService, ProductService>();
+			services.AddTransient<IUserOrderService, UserOrderService>();
 
-			//services.AddTransient<IProgramLogRegister>(s => logRegister);
-			services.AddTransient<IRegistrationBlModel>(s => registrationBlModel);
-			services.AddTransient<IAuthorizationBlModel>(s => authorizationBlModel);
-			services.AddTransient<IProductCategoryBlModel>(s => productCategoryBlModel);
-			services.AddTransient<IImageProductBlModel>(s => imageProductBl);
-			services.AddTransient<IProductInformationBlModel>(s => productInformationBlModel);
-			services.AddTransient<IProductBlModel>(s => productBlModel);
-			services.AddTransient<IUserOrderBlModel>(s => userOrderBlModel);
 
-			services.AddMvc();
+
+			//< IOperationSingletonInstance > (new Operation(Guid.Empty));
+
+
+			//services.AddTransient<IRegistrationBlModel, RegistrationBlModel>();
+
+
+
+			//================================================================================================
+
+			#endregion
+
+
+			services.AddMvcCore();
 
 
 			services.AddSwaggerGen(c =>
@@ -118,7 +164,26 @@ namespace StoreWebApi
 				c.IncludeXmlComments(xmlPath);
 			});
 
-			
+			#region CORS
+
+			services.Configure<MvcOptions>(options =>
+			{
+				options.Filters.Add(new CorsAuthorizationFilterFactory(CorsPolicy));
+			});
+			var corsBuilder = new CorsPolicyBuilder();
+			corsBuilder.AllowAnyHeader();
+			corsBuilder.AllowAnyMethod();
+			corsBuilder.WithOrigins("http://localhost:4200");
+			corsBuilder.AllowCredentials();
+
+			services.AddCors(options =>
+			{
+				options.AddPolicy(CorsPolicy, corsBuilder.Build());
+			});
+
+			#endregion
+
+
 
 		}
 
@@ -131,17 +196,20 @@ namespace StoreWebApi
 				app.UseDeveloperExceptionPage();
 			}
 
-			app.UseAuthentication();
-			app.UseHttpsRedirection();
-			app.UseMvc();
-
 			app.UseSwagger();
-			
+
 			app.UseSwaggerUI(c =>
 			{
 				c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
 				c.RoutePrefix = string.Empty;
 			});
+
+			app.UseCors(CorsPolicy);
+
+			app.UseAuthentication();
+			app.UseHttpsRedirection();
+			app.UseMvc();
+
 
 
 

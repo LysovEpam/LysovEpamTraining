@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using CommonEntities;
-using DALContracts;
 using DALContracts.Repositories;
 using System.Data.SqlClient;
 using System.Linq;
 
 namespace DAL.OnlineStore.Repositories
 {
-	public class UserOrderRepository : ExecuteCommandBase, IRepository<UserOrder>, ILogRepository
+	public class UserOrderRepository : ExecuteCommandBase, IRepository<UserOrder>
 	{
 
 		#region Stored procedure names
@@ -35,14 +34,12 @@ namespace DAL.OnlineStore.Repositories
 			_userSystemRepository = userSystemRepository;
 		}
 
-		public event RepositoryEvent RepositoryEvent;
-
-
+		
 
 		public int? Insert(UserOrder item)
 		{
-			try
-			{
+			//try
+			//{
 
 				int? idNewOrder;
 
@@ -59,7 +56,7 @@ namespace DAL.OnlineStore.Repositories
 				var statusParam = new SqlParameter
 				{
 					ParameterName = "@Status",
-					Value = item.Status
+					Value = item.OrderStatus.GetStatusName()
 				};
 				var userIdParam = new SqlParameter
 				{
@@ -125,33 +122,33 @@ namespace DAL.OnlineStore.Repositories
 				}
 
 				return idNewOrder;
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(Insert)}",
-					$"Ошибка при создании новой сущности {nameof(UserOrder)}",
-					$"Текст исключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(Insert)}",
+			//		$"Ошибка при создании новой сущности {nameof(UserOrder)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
-			}
+			//	return null;
+			//}
 
 
 		}
 		public bool Update(UserOrder item)
 		{
-			if (!item.IdEntity.HasValue)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(Update)}",
-					$"Ошибка при обновлении сущности {nameof(UserOrder)}",
-					"Id сущности не может быть пустым");
+			//if (!item.IdEntity.HasValue)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(Update)}",
+			//		$"Ошибка при обновлении сущности {nameof(UserOrder)}",
+			//		"Id сущности не может быть пустым");
 
-				return false;
-			}
+			//	return false;
+			//}
 
-			try
-			{
+			//try
+			//{
 
 				var idParam = new SqlParameter
 				{
@@ -171,7 +168,7 @@ namespace DAL.OnlineStore.Repositories
 				var statusParam = new SqlParameter
 				{
 					ParameterName = "@Status",
-					Value = item.Status
+					Value = item.OrderStatus.GetStatusName()
 				};
 				var userIdParam = new SqlParameter
 				{
@@ -282,16 +279,16 @@ namespace DAL.OnlineStore.Repositories
 
 				return idCommandResult != null && (int)idCommandResult == 1;
 
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(Update)}",
-					$"Ошибка при обновлении сущности {nameof(UserOrder)}",
-					$"Текст исключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(Update)}",
+			//		$"Ошибка при обновлении сущности {nameof(UserOrder)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return false;
-			}
+			//	return false;
+			//}
 
 
 
@@ -301,8 +298,8 @@ namespace DAL.OnlineStore.Repositories
 
 		public bool Delete(int id)
 		{
-			try
-			{
+			//try
+			//{
 				UserOrder oldInformation = SelectById(id);
 				object idCommandResult;
 
@@ -369,23 +366,23 @@ namespace DAL.OnlineStore.Repositories
 
 				return idCommandResult != null && (int)idCommandResult == 1;
 
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(Delete)}",
-					$"Ошибка при удалении сущности {nameof(UserOrder)}",
-					$"Текст инсключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(Delete)}",
+			//		$"Ошибка при удалении сущности {nameof(UserOrder)}",
+			//		$"Текст инсключения: {e.Message}");
 
-				return false;
-			}
+			//	return false;
+			//}
 		}
 
 
 		public UserOrder SelectById(int id)
 		{
-			try
-			{
+			//try
+			//{
 				UserOrder userOrder = null;
 
 				var idParam = new SqlParameter
@@ -437,21 +434,21 @@ namespace DAL.OnlineStore.Repositories
 
 				return userOrder;
 
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(SelectById)}",
-					$"Ошибка при получении сущности {nameof(UserOrder)}",
-					$"Текст исключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(SelectById)}",
+			//		$"Ошибка при получении сущности {nameof(UserOrder)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
-			}
+			//	return null;
+			//}
 		}
 		public List<UserOrder> SelectAll()
 		{
-			try
-			{
+			//try
+			//{
 				List<UserOrder> listResult = null;
 
 				using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -516,47 +513,47 @@ namespace DAL.OnlineStore.Repositories
 				}
 
 				return listResult;
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(SelectAll)}",
-					$"Ошибка при получении списка сущностей {nameof(UserOrder)}",
-					$"Текст исключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(SelectAll)}",
+			//		$"Ошибка при получении списка сущностей {nameof(UserOrder)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
-			}
+			//	return null;
+			//}
 		}
 		public List<UserOrder> Find(Func<UserOrder, bool> predicate)
 		{
-			try
-			{
+			//try
+			//{
 				var tempList = SelectAll();
 
 				var resultList = tempList.Where(predicate);
 
 				return resultList.ToList();
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(Find)}",
-					$"Ошибка при поиске в списке сущностей {nameof(UserOrder)}",
-					$"Текст исключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserOrderRepository)} - {nameof(Find)}",
+			//		$"Ошибка при поиске в списке сущностей {nameof(UserOrder)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
-			}
+			//	return null;
+			//}
 
 		}
 
 
 
 
-		private void DoRepositoryEvent(string location, string caption, string description)
+		
+
+		public int GetCountDependencies(int id)
 		{
-			RepositoryEvent?.Invoke(location, caption, description);
+			return 0;
 		}
-
-
 	}
 }

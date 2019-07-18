@@ -11,5 +11,6 @@ namespace DALContracts.Repositories
 		int? Insert(T item);
 		bool Update(T item);
 		bool Delete(int id);
+		int GetCountDependencies(int id);
 	}
 }

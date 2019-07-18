@@ -11,9 +11,9 @@ namespace CommonEntities.Additional
 
 		public enum RoleEnum
 		{
-			User,
-			Editor,
-			Admin
+			User = 10,
+			Editor = 11,
+			Admin = 12
 		}
 
 		public RoleEnum Role { get; }
@@ -33,8 +33,7 @@ namespace CommonEntities.Additional
 			return GetRoleName(Role);
 		}
 		
-		#region Статические методы получения роли
-
+		
 		public static string GetRoleName(RoleEnum role)
 		{
 			switch (role)
@@ -56,8 +55,7 @@ namespace CommonEntities.Additional
 			}
 		}
 
-		#endregion
-
+		
 
 	}
 }

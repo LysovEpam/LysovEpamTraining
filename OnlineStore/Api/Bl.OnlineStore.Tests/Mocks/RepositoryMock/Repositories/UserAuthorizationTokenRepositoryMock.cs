@@ -90,7 +90,7 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock.Repositories
 					userAuthorization.FinishSession = item.FinishSession;
 					userAuthorization.UserToken = item.UserToken;
 					userAuthorization.StartSession = item.StartSession;
-					userAuthorization.Status = item.Status;
+					userAuthorization.AuthorizationStatus = item.AuthorizationStatus;
 					userAuthorization.UserSystem = item.UserSystem;
 					userAuthorization.UserId = item.UserId;
 
@@ -102,6 +102,11 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock.Repositories
 			}
 
 			return false;
+		}
+
+		public int GetCountDependencies(int id)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

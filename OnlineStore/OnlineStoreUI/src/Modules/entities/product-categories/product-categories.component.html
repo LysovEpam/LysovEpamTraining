@@ -1,0 +1,59 @@
+<div class="mat-elevation-z8">
+
+    <div class="main-container">
+        {{productCategoriesMessage}}
+    </div>
+        
+
+    <div>
+        <button style="width: 100%;" mat-button (click)="createProductCategory()">Create new prodcut category</button>
+    </div>
+
+    <div class="filter-container">
+        <mat-form-field>
+                <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+            </mat-form-field>
+    </div>
+
+    <table mat-table [dataSource]="dataSource">
+
+        <ng-container matColumnDef="idEntity">
+            <th mat-header-cell *matHeaderCellDef> Id product category </th>
+            <td mat-cell *matCellDef="let element"> {{element.idEntity}} </td>
+        </ng-container>
+                
+        <ng-container matColumnDef="categoryName">
+            <th mat-header-cell *matHeaderCellDef> Category name </th>
+            <td mat-cell *matCellDef="let element">  
+                <textarea matInput placeholder="Textarea"> {{element.categoryName}} </textarea>
+            </td>
+        </ng-container>
+    
+        
+        <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef> Description </th>
+            <td mat-cell *matCellDef="let element">
+                <textarea matInput placeholder="Textarea"> {{element.description}} </textarea>
+            </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> </th>
+            <td mat-cell *matCellDef="let element" class="column-action-container"> 
+                <button mat-button (click)="updateProductCategory(element)">Update</button>
+                <button mat-button (click)="deleteProductCategory(element)">Delete</button>
+                
+            </td>
+                
+        </ng-container>
+
+        
+               
+            
+    
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    
+        <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons></mat-paginator>
+</div>

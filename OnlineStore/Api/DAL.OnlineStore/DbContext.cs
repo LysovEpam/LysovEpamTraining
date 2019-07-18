@@ -7,7 +7,7 @@ namespace DAL.OnlineStore
 {
 	public class DbContext : IDbContext
 	{
-		private readonly UserAccessRepository _userAccessRepository;
+		private readonly UserAdmittanceRepository _userAdmittanceRepository;
 		private readonly UserSystemRepository _userSystemRepository;
 		private readonly UserAuthorizationTokenRepository _userAuthorizationTokenRepository;
 		private readonly ProductCategoryRepository _productCategoryRepository;
@@ -16,10 +16,9 @@ namespace DAL.OnlineStore
 		private readonly UserOrderRepository _userOrderRepository;
 
 
-		public event RepositoryEvent RepositoryEvent;
+		
 
-
-		public IRepositoryUserAccess UserAccesses => _userAccessRepository;
+		public IRepositoryUserAdmittance UserAdmittances => _userAdmittanceRepository;
 		public IRepositoryUserSystem UsersSystem => _userSystemRepository;
 		public IRepositoryUserAuthorizationToken UserAuthorizationsToken => _userAuthorizationTokenRepository;
 
@@ -33,9 +32,9 @@ namespace DAL.OnlineStore
 
 		public DbContext(string stringConnection)
 		{
-			_userAccessRepository = new UserAccessRepository(stringConnection);
-			_userSystemRepository = new UserSystemRepository(stringConnection, _userAccessRepository);
-			_userAuthorizationTokenRepository = new UserAuthorizationTokenRepository(stringConnection);
+			_userAdmittanceRepository = new UserAdmittanceRepository(stringConnection);
+			_userSystemRepository = new UserSystemRepository(stringConnection, _userAdmittanceRepository);
+			_userAuthorizationTokenRepository = new UserAuthorizationTokenRepository(stringConnection, _userSystemRepository);
 
 			_productCategoryRepository = new ProductCategoryRepository(stringConnection);
 			_productInformationRepository = new ProductInformationRepository(stringConnection, _productCategoryRepository);
@@ -44,15 +43,13 @@ namespace DAL.OnlineStore
 
 			
 
-			_productCategoryRepository.RepositoryEvent+= DoRepositoryEvent;
-
 		}
 
 		
 
 		protected virtual void DoRepositoryEvent(string location, string caption, string description)
 		{
-			RepositoryEvent?.Invoke(location, caption, description);
+			
 		}
 	}
 }

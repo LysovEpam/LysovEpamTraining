@@ -1,4 +1,4 @@
-﻿using BL.OnlineStore.BlModels.SystemBlModels;
+﻿using BL.OnlineStore.Services.SystemServices;
 using BL.OnlineStore.Tests.Mocks;
 using BL.OnlineStore.Tests.Mocks.RepositoryMock;
 using BLContracts;
@@ -14,7 +14,7 @@ namespace Bl.OnlineStore.Tests.SystemBlModel
 		private static IDbContext _dbContext;
 		private static IPasswordHash _passwordHash;
 
-		private static AuthorizationBlModel _authorizationBlModel;
+		private static AuthorizationService _authorizationService;
 
 		[ClassInitialize]
 		public static void Init(TestContext testContext)

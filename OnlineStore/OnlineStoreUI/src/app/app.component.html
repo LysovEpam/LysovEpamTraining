@@ -1,0 +1,76 @@
+
+
+
+
+<div>
+  <header>
+    <div class="header-top">
+        <div class="header-logo">
+            OnlineStore
+        </div>
+        <div class="header-info">
+          <a href="mailto:info@onlineStore.com">info@onlineStore.com</a>
+          <a>+375 29 111-22-33</a>
+        </div>
+
+        <div *ngIf="(loggedUser || loggedEditor || loggedAdmin); else loggedOut">
+          
+          <div class="header-account-login">
+            <div class="header-menu" *ngIf="loggedEditor || loggedAdmin">
+              <ul>
+                <li>
+                    <a>Employee dashboard</a>
+                    <ul class="sub-menu">
+                      <li *ngIf="loggedEditor || loggedAdmin">
+                        <a routerLink="editor-dashboard">Editor dashboard</a>
+                      </li>
+                      <li *ngIf="loggedAdmin">
+                        <a routerLink="admin-dashboard">Admin dashboard</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>  
+              <a routerLink="shopping-basket" class="button shopping-basket">Shopping basket</a>
+              <a routerLink="user-dashboard" class="button singup">User account</a>
+              <a routerLink="" (click)="logOut()">Log out</a>
+          </div> 
+
+        </div>
+        <ng-template #loggedOut>
+            <div class="header-account-login">
+                <a routerLink="singup" class="button">Sign Up</a>
+                <a routerLink="singin">Sign In</a>
+            </div>
+        </ng-template>
+     
+    </div>
+    <div >
+      <div class="main-menu">
+        <div>
+          <ul>
+            <li>
+              <a routerLink="test">Test!!!</a>
+            </li>
+            <li>
+              <a routerLink="store">Store</a>
+            </li>
+            <li>
+              <a routerLink="news">News</a>
+            </li>
+            <li>
+                <a routerLink="sales">Sales</a>
+            </li>
+            <li>
+                <a routerLink="contact">Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+</header>
+<div class="main-content">
+  <router-outlet></router-outlet>
+</div>
+</div>  

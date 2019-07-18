@@ -1,13 +1,14 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using BLContracts.ActionResults;
-using BLContracts.MainBl;
+using BLContracts.MainService;
 using CommonEntities;
-using CommonEntities.Additional;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StoreWebApi.AuthorizationModel;
-using StoreWebApi.Models.FluentValidation;
+using StoreWebApi.FluentValidation;
 
 namespace StoreWebApi.Controllers.Main
 {
@@ -16,79 +17,71 @@ namespace StoreWebApi.Controllers.Main
 	[ApiController]
 	public class ProductCategoryController : Controller
 	{
-		private readonly IProductCategoryBlModel _productCategoryBlModel;
+		private readonly IProductCategoryService _productCategoryService;
 
-		public ProductCategoryController(IProductCategoryBlModel categoryBlModel)
+		public ProductCategoryController(IProductCategoryService categoryService)
 		{
-			_productCategoryBlModel = categoryBlModel;
+			_productCategoryService = categoryService;
 		}
 
-		#region GetList
-
-		/// <summary>
-		/// Get list all product categories
-		/// </summary>
-		/// <returns>A newly created product category</returns>
-		/// <response code="200">Returns list all product categories</response>
-		[HttpGet]
-		[AllowAnonymous]
-		[ProducesResponseType(200)]
-		public ActionResult<ProductCategory[]> GetList()
-		{
-			var blResult = _productCategoryBlModel.GetAll();
-
-			var result = blResult.Item2.ToArray();
-
-			return result;
-		}
-
-		#endregion
+		
 		#region GetById
 
 		/// <summary>
 		/// Get product category by id
 		/// </summary>
 		/// <param name="id">id product category</param>
-		/// <returns>product category</returns>
+		/// <returns>Product category</returns>
 		/// <response code="200">Returns the product category</response>
-		/// <response code="400">If the id is null</response>
-		[HttpGet]
+		/// <response code="404">If the entity does not exist</response>
+		/// <response code="500">If a server error occurred while processing the request</response>
+		[HttpGet("{id}")]
 		[AllowAnonymous]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		public ActionResult<ProductCategory> GetById(int id)
+		[ProducesResponseType(typeof(ProductCategory), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+		public ActionResult GetById(int id)
 		{
-			var blResult = _productCategoryBlModel.GetById(id);
+			var blResult = _productCategoryService.GetById(id);
 
-			var result = blResult.Item2;
+			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
 
-			return result;
+			if (blResult.productCategory == null)
+				return StatusCode(StatusCodes.Status404NotFound, "The product category does not exist");
+
+			return Ok(blResult.productCategory);
 		}
 		#endregion
-		#region GetByName
+		#region GetList
 
 		/// <summary>
-		/// Get product category by id
+		/// Get list all product categories
 		/// </summary>
-		/// <param name="categoryName">name product category</param>
-		/// <returns>product categories</returns>
-		/// <response code="200">Returns the product categories</response>
-		/// <response code="400">If the category name is null</response>
+		/// <returns>Product categories</returns>
+		/// <response code="200">Returns list all product categories</response>
+		/// <response code="404">If entities do not exist</response>
+		/// <response code="500">If a server error occurred while processing the request</response>
 		[HttpGet]
 		[AllowAnonymous]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		public ActionResult<ProductCategory[]> GetByName(string categoryName)
+		[ProducesResponseType(typeof(IEnumerable<ProductCategory>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+		public ActionResult GetList()
 		{
-			var blResult = _productCategoryBlModel.GetByName(categoryName);
+			var blResult = _productCategoryService.GetAll();
 
-			var result = blResult.Item2.ToArray();
+			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
 
-			return result;
+			if (blResult.productCategories != null && blResult.productCategories.Count == 0)
+				return StatusCode(StatusCodes.Status404NotFound, "Product categories do not exist");
+
+			return Ok(blResult.productCategories);
 		}
 
 		#endregion
-		#region SearchCategory
+		#region Search
 
 		/// <summary>
 		/// Search product category
@@ -97,17 +90,29 @@ namespace StoreWebApi.Controllers.Main
 		/// <returns>product categories</returns>
 		/// <response code="200">Returns the product category</response>
 		/// <response code="400">If the search string is null</response>
-		[HttpGet]
+		/// <response code="404">If the category does not exist</response>
+		/// <response code="500">If a server error occurred while processing the request</response>
+		[HttpGet("{searchString}")]
 		[AllowAnonymous]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		public ActionResult<ProductCategory[]> SearchCategory(string searchString)
+		[ProducesResponseType(typeof(IEnumerable<ProductCategory>), 200)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+		public ActionResult Search(string searchString)
 		{
-			var blResult = _productCategoryBlModel.SearchCategory(searchString);
+			if (string.IsNullOrEmpty(searchString))
+				return StatusCode(StatusCodes.Status400BadRequest, "Search string  cannot be empty");
 
-			var result = blResult.Item2.ToArray();
+			var blResult = _productCategoryService.SearchCategory(searchString);
 
-			return result;
+			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+
+			if (blResult.productCategories != null && blResult.productCategories.Count == 0)
+				return StatusCode(StatusCodes.Status404NotFound, "Product categories do not exist");
+
+
+			return Ok(blResult.productCategories);
 		}
 
 		#endregion
@@ -116,50 +121,52 @@ namespace StoreWebApi.Controllers.Main
 		/// <summary>
 		/// Create a product category
 		/// </summary>
-		/// <remarks>
-		/// Sample request:
-		///
-		///     POST /ProductCategory
-		///     {
-		///        "IdEntity": null,
-		///        "CategoryName": "New category name",
-		///        "Description": "New description"
-		///     }
-		///
-		/// </remarks>
-		/// <param name="productCategory"></param>
+		/// <param name="productCategory">Product category</param>
 		/// <returns>Category creation result</returns>
-		/// <response code="201">The result of creating a new category</response>
+		/// <response code="201">Server return results</response>
 		/// <response code="400">If the item is null</response>
-		/// <response code="401">If the user is not authorized or there is no permission to add</response> 
+		/// <response code="401">If the user is not authorized or there is no permission to add</response>
+		/// <response code="403">If the user does not have access</response>
+		/// <response code="409">If input error</response>
+		/// <response code="500">If a server error occurred while processing the request</response>
 		[HttpPost]
-		[Authorize]
-		[Authorize(Roles = UserRole.RoleEditor)]
-		[Authorize(Roles = UserRole.RoleAdmin)]
-		[ProducesResponseType(201)]
-		[ProducesResponseType(400)]
-		[ProducesResponseType(401)]
-		public ActionResult<BaseActionResult> Create(ProductCategory productCategory)
+		[Authorize(Roles = AuthorizationDataModel.RoleEditorAndAdmin)]
+		[ProducesResponseType(StatusCodes.Status201Created)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+		public ActionResult Create([FromBody]ProductCategory productCategory)
 		{
+			if (productCategory == null)
+				return BadRequest("Input request is empty");
+
 			ProductCategoryValidator validator = new ProductCategoryValidator();
 
 			ValidationResult validationResult = validator.Validate(productCategory);
 
 			if (!validationResult.IsValid)
 			{
-				BaseActionResult resultError = new BaseActionResult(BaseActionResult.ResultConnectionEnum.SystemError,
-					"Модель не прошла валидацию");  //ЗАМЕНИТЬ! Добавить отправку сообщения об ошибке
+				string errorMessage = "";
 
-				return resultError;
+				foreach (var error in validationResult.Errors)
+					errorMessage += error.ErrorMessage + " ";
+
+				return Conflict(errorMessage);
 			}
 
 			var claims = HttpContext.User.Claims.ToList();
 			string sessionToken = claims.FirstOrDefault(c => c.Type == AuthorizationDataModel.ClaimSessionToken)?.Value;
 
-			BaseActionResult result = _productCategoryBlModel.SaveNewCategory(sessionToken, productCategory);
+			ServiceResult result = _productCategoryService.SaveNewCategory(sessionToken, productCategory);
 
-			return result;
+			if(result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
 
+			return CreatedAtAction(nameof(GetById), new { id = productCategory.IdEntity }, productCategory);
+
+			
 		}
 
 		#endregion
@@ -168,49 +175,49 @@ namespace StoreWebApi.Controllers.Main
 		/// <summary>
 		/// Update a product category
 		/// </summary>
-		/// <remarks>
-		/// Sample request:
-		///
-		///     POST /ProductCategory
-		///     {
-		///        "IdEntity": 1,
-		///        "CategoryName": "category update",
-		///        "Description": "description update"
-		///     }
-		///
-		/// </remarks>
 		/// <param name="productCategory"></param>
 		/// <returns>Category update result</returns>
 		/// <response code="200">Update success</response>
 		/// <response code="400">If the item is null</response>
-		/// <response code="401">If the user is not authorized or there is no permission to update</response> 
+		/// <response code="401">If the user is not authorized or there is no permission to update</response>
+		/// <response code="403">If the user does not have access</response>
+		/// <response code="500">If a server error occurred while processing the request</response>
 		[HttpPost]
-		[Authorize]
-		[Authorize(Roles = UserRole.RoleEditor)]
-		[Authorize(Roles = UserRole.RoleAdmin)]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		[ProducesResponseType(401)]
-		public ActionResult<BaseActionResult> Update(ProductCategory productCategory)
+		[Authorize(Roles = AuthorizationDataModel.RoleEditorAndAdmin)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+		public ActionResult Update([FromBody]ProductCategory productCategory)
 		{
-			ProductCategoryValidator validator = new ProductCategoryValidator();
+			if (productCategory == null)
+				return BadRequest("Input request is empty");
 
+			ProductCategoryValidator validator = new ProductCategoryValidator();
 			ValidationResult validationResult = validator.Validate(productCategory);
 
 			if (!validationResult.IsValid)
 			{
-				BaseActionResult resultError = new BaseActionResult(BaseActionResult.ResultConnectionEnum.SystemError,
-					"Модель не прошла валидацию");  //ЗАМЕНИТЬ! Добавить отправку сообщения об ошибке
 
-				return resultError;
+				string errorMessage = "";
+
+				foreach (var error in validationResult.Errors)
+					errorMessage += error.ErrorMessage + " ";
+
+				return Conflict(errorMessage);
 			}
 
 			var claims = HttpContext.User.Claims.ToList();
 			string sessionToken = claims.FirstOrDefault(c => c.Type == AuthorizationDataModel.ClaimSessionToken)?.Value;
 
-			BaseActionResult result = _productCategoryBlModel.UpdateCategory(sessionToken, productCategory);
+			ServiceResult result = _productCategoryService.UpdateCategory(sessionToken, productCategory);
 
-			return result;
+			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+
+			return Ok();
 
 		}
 
@@ -224,32 +231,33 @@ namespace StoreWebApi.Controllers.Main
 		/// <returns>Category delete result</returns>
 		/// <response code="200">Delete success</response>
 		/// <response code="400">If the item is null</response>
-		/// <response code="401">If the user is not authorized or there is no permission to delete</response> 
+		/// <response code="401">If the user is not authorized or there is no permission to delete</response>
+		/// <response code="403">If the user does not have access</response>
+		/// <response code="500">If a server error occurred while processing the request</response>
 		[HttpDelete("{id}")]
-		[Authorize]
-		[Authorize(Roles = UserRole.RoleEditor)]
-		[Authorize(Roles = UserRole.RoleAdmin)]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		[ProducesResponseType(401)]
-		public ActionResult<BaseActionResult> Delete(int id)
+		[Authorize(Roles = AuthorizationDataModel.RoleEditorAndAdmin)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+		public ActionResult Delete(int id)
 		{
+			if(id<1)
+				return BadRequest("Input request is empty");
+
 			var claims = HttpContext.User.Claims.ToList();
 			string sessionToken = claims.FirstOrDefault(c => c.Type == AuthorizationDataModel.ClaimSessionToken)?.Value;
 
-			BaseActionResult result = _productCategoryBlModel.DeleteCategory(sessionToken, id);
+			ServiceResult result = _productCategoryService.DeleteCategory(sessionToken, id);
 
-			return result;
+			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+
+			return Ok();
 		}
 
 		#endregion
-
-
-
-
-
-
-
 
 	}
 }

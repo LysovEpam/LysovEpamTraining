@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using CommonEntities;
-using DALContracts;
 using DALContracts.Repositories;
 
 namespace DAL.OnlineStore.Repositories
 {
-	public class UserSystemRepository : ExecuteCommandBase, IRepositoryUserSystem, ILogRepository
+	public class UserSystemRepository : ExecuteCommandBase, IRepositoryUserSystem
 	{
 		#region Stored procedure names
 
@@ -23,260 +22,254 @@ namespace DAL.OnlineStore.Repositories
 		#endregion
 
 		private readonly string _connectionString;
-		private readonly UserAccessRepository _userAccessRepository;
+		private readonly UserAdmittanceRepository _userAdmittanceRepository;
 
-		public UserSystemRepository(string connectionString, UserAccessRepository userAccessRepository) : base(connectionString)
+		public UserSystemRepository(string connectionString, UserAdmittanceRepository userAdmittanceRepository) : base(connectionString)
 		{
 			_connectionString = connectionString;
-			_userAccessRepository = userAccessRepository;
+			_userAdmittanceRepository = userAdmittanceRepository;
 		}
 
 		public UserSystem GetUserByLoginPasswordhash(string login, string passwordHash)
 		{
-			try
+			//try
+			//{
+			var loginParam = new SqlParameter
 			{
-				var loginParam = new SqlParameter
-				{
-					ParameterName = "@Login",
-					Value = login
-				};
-				var passwordHashParam = new SqlParameter
-				{
-					ParameterName = "@PasswordHash",
-					Value = passwordHash
-				};
-
-				var user = ReadUser(SpSelectByLoginPassword, loginParam, passwordHashParam);
-
-				return user;
-
-			}
-			catch (Exception e)
+				ParameterName = "@Login",
+				Value = login
+			};
+			var passwordHashParam = new SqlParameter
 			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(GetUserByLoginPasswordhash)}",
-					$"Ошибка при получении сущности {nameof(UserSystem)}",
-					$"Текст исключения: {e.Message}");
+				ParameterName = "@PasswordHash",
+				Value = passwordHash
+			};
 
-				return null;
-			}
+			Console.WriteLine($"{login}={passwordHash}");
+
+			var user = ReadUser(SpSelectByLoginPassword, loginParam, passwordHashParam);
+
+			return user;
+
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(GetUserByLoginPasswordhash)}",
+			//		$"Ошибка при получении сущности {nameof(UserSystem)}",
+			//		$"Текст исключения: {e.Message}");
+
+			//	return null;
+			//}
 		}
 
 
 		public int? Insert(UserSystem item)
 		{
-			try
+			//try
+			//{
+			var firstNameParam = new SqlParameter
 			{
-				var firstNameParam = new SqlParameter
-				{
-					ParameterName = "@FirstName",
-					Value = item.FirsName
-				};
-				var lastNameParam = new SqlParameter
-				{
-					ParameterName = "@LastName",
-					Value = item.LastName
-				};
-				var emailParam = new SqlParameter
-				{
-					ParameterName = "@Email",
-					Value = item.Email
-				};
-				var phoneParam = new SqlParameter
-				{
-					ParameterName = "@Phone",
-					Value = item.Phone
-				};
-				var userAccessIdParam = new SqlParameter
-				{
-					ParameterName = "@UserAccessId",
-					Value = item.UserAccessId
-				};
-
-				var resultCommand = ExecuteCommand(SpInsert, firstNameParam, lastNameParam, emailParam, phoneParam, userAccessIdParam);
-
-				int? result = null;
-
-				if (resultCommand != null)
-				{
-					decimal lastId = (decimal)resultCommand;
-					result = Decimal.ToInt32(lastId);
-				}
-
-				return result;
-			}
-			catch (Exception e)
+				ParameterName = "@FirstName",
+				Value = item.FirsName
+			};
+			var lastNameParam = new SqlParameter
 			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Insert)}",
-					$"Ошибка при создании сущности {nameof(UserSystem)}",
-					$"Текст исключения: {e.Message}");
+				ParameterName = "@LastName",
+				Value = item.LastName
+			};
+			var emailParam = new SqlParameter
+			{
+				ParameterName = "@Email",
+				Value = item.Email
+			};
+			var phoneParam = new SqlParameter
+			{
+				ParameterName = "@Phone",
+				Value = item.Phone
+			};
+			var userAccessIdParam = new SqlParameter
+			{
+				ParameterName = "@UserAdmittanceId",
+				Value = item.UserAdmittanceId
+			};
 
-				return null;
+			var resultCommand = ExecuteCommand(SpInsert, firstNameParam, lastNameParam, emailParam, phoneParam, userAccessIdParam);
+
+			int? result = null;
+
+			if (resultCommand != null)
+			{
+				decimal lastId = (decimal)resultCommand;
+				result = Decimal.ToInt32(lastId);
 			}
+
+			return result;
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Insert)}",
+			//		$"Ошибка при создании сущности {nameof(UserSystem)}",
+			//		$"Текст исключения: {e.Message}");
+
+			//	return null;
+			//}
 		}
 		public bool Update(UserSystem item)
 		{
 
 			if (!item.IdEntity.HasValue)
 			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Update)}",
-					$"Ошибка при обновлении сущности {nameof(UserSystem)}",
-					"Id сущности не может быть пустым");
 
 				return false;
 			}
 
 
-			try
+			//try
+			//{
+
+			var idParam = new SqlParameter
 			{
-
-				var idParam = new SqlParameter
-				{
-					ParameterName = "@IdEntity",
-					Value = item.IdEntity.Value
-				};
-				var firstNameParam = new SqlParameter
-				{
-					ParameterName = "@FirstName",
-					Value = item.FirsName
-				};
-				var lastNameParam = new SqlParameter
-				{
-					ParameterName = "@LastName",
-					Value = item.LastName
-				};
-				var emailParam = new SqlParameter
-				{
-					ParameterName = "@Email",
-					Value = item.Email
-				};
-				var phoneParam = new SqlParameter
-				{
-					ParameterName = "@Phone",
-					Value = item.Phone
-				};
-				var userAccessIdParam = new SqlParameter
-				{
-					ParameterName = "@UserAccessId",
-					Value = item.UserAccessId
-				};
-				
-				var resultCommand = ExecuteCommand(SpUpdate, idParam, firstNameParam, lastNameParam, emailParam, phoneParam, userAccessIdParam);
-
-				return resultCommand != null && (int)resultCommand == 1;
-
-			}
-			catch (Exception e)
+				ParameterName = "@IdEntity",
+				Value = item.IdEntity.Value
+			};
+			var firstNameParam = new SqlParameter
 			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Insert)}",
-					$"Ошибка при создании сущности {nameof(UserSystem)}",
-					$"Текст исключения: {e.Message}");
+				ParameterName = "@FirstName",
+				Value = item.FirsName
+			};
+			var lastNameParam = new SqlParameter
+			{
+				ParameterName = "@LastName",
+				Value = item.LastName
+			};
+			var emailParam = new SqlParameter
+			{
+				ParameterName = "@Email",
+				Value = item.Email
+			};
+			var phoneParam = new SqlParameter
+			{
+				ParameterName = "@Phone",
+				Value = item.Phone
+			};
+			var userAccessIdParam = new SqlParameter
+			{
+				ParameterName = "@UserAdmittanceId",
+				Value = item.UserAdmittanceId
+			};
 
-				return false;
-			}
+			var resultCommand = ExecuteCommand(SpUpdate, idParam, firstNameParam, lastNameParam, emailParam, phoneParam, userAccessIdParam);
+
+			return resultCommand != null && (int)resultCommand == 1;
+
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Insert)}",
+			//		$"Ошибка при создании сущности {nameof(UserSystem)}",
+			//		$"Текст исключения: {e.Message}");
+
+			//	return false;
+			//}
 		}
 		public bool Delete(int id)
 		{
 			if (id < 1)
 			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Delete)}",
-					$"Ошибка при удалении сущности {nameof(UserSystem)}",
-					"Id не может быть меньше 1");
 
 				return false;
 			}
-			
-			try
+
+			//try
+			//{
+
+			var idParam = new SqlParameter
 			{
+				ParameterName = "@IdEntity",
+				Value = id
+			};
 
-				var idParam = new SqlParameter
-				{
-					ParameterName = "@IdEntity",
-					Value = id
-				};
+			var resultCommand = ExecuteCommand(SpDelete, idParam);
 
-				var resultCommand = ExecuteCommand(SpDelete, idParam);
+			return resultCommand != null && (int)resultCommand == 1;
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Delete)}",
+			//		$"Ошибка при удалении сущности {nameof(UserSystem)}",
+			//		$"Текст инсключения: {e.Message}");
 
-				return resultCommand != null && (int)resultCommand == 1;
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Delete)}",
-					$"Ошибка при удалении сущности {nameof(UserSystem)}",
-					$"Текст инсключения: {e.Message}");
-
-				return false;
-			}
+			//	return false;
+			//}
 		}
 
 
 		public UserSystem SelectById(int id)
 		{
-			try
+			//try
+			//{
+			var idParam = new SqlParameter
 			{
-				var idParam = new SqlParameter
-				{
-					ParameterName = "@IdEntity",
-					Value = id
-				};
+				ParameterName = "@IdEntity",
+				Value = id
+			};
 
-				var user = ReadUser(SpSelectById, idParam);
+			var user = ReadUser(SpSelectById, idParam);
 
-				return user;
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(SelectById)}",
-					$"Ошибка при получении сущности {nameof(UserSystem)}",
-					$"Текст исключения: {e.Message}");
+			return user;
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(SelectById)}",
+			//		$"Ошибка при получении сущности {nameof(UserSystem)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
-			}
+			//	return null;
+			//}
 
 		}
 		public List<UserSystem> SelectAll()
 		{
-			try
-			{
-				var users = ReadUsers(SpSelectAll);
+			//try
+			//{
+			var users = ReadUsers(SpSelectAll);
 
-				return users;
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(SelectAll)}",
-					$"Ошибка при получении списка сущностей {nameof(UserSystem)}",
-					$"Текст исключения: {e.Message}");
+			return users;
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(SelectAll)}",
+			//		$"Ошибка при получении списка сущностей {nameof(UserSystem)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
-			}
+			//	return null;
+			//}
 		}
 		public List<UserSystem> Find(Func<UserSystem, bool> predicate)
 		{
-			try
-			{
-				var listTemp = ReadUsers(SpSelectAll);
+			//try
+			//{
+			var listTemp = ReadUsers(SpSelectAll);
 
-				var users = listTemp.Where(predicate);
+			var users = listTemp.Where(predicate);
 
-				return users.ToList();
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Find)}",
-					$"Ошибка при поиске в списке сущностей {nameof(UserSystem)}",
-					$"Текст исключения: {e.Message}");
+			return users.ToList();
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Find)}",
+			//		$"Ошибка при поиске в списке сущностей {nameof(UserSystem)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
-			}
+			//	return null;
+			//}
 		}
 
 
@@ -310,9 +303,9 @@ namespace DAL.OnlineStore.Repositories
 						string readPhone = reader.GetString(4);
 						int readAccessId = reader.GetInt32(5);
 
-						UserAccess userAccess = _userAccessRepository.SelectById(readAccessId);
+						UserAdmittance userAdmittance = _userAdmittanceRepository.SelectById(readAccessId);
 
-						UserSystem userSystem = new UserSystem(readId, readFirstName, readLastName, readEmail, readPhone, userAccess);
+						UserSystem userSystem = new UserSystem(readId, readFirstName, readLastName, readEmail, readPhone, userAdmittance);
 
 						users.Add(userSystem);
 
@@ -352,9 +345,9 @@ namespace DAL.OnlineStore.Repositories
 						string readPhone = reader.GetString(4);
 						int readAccessId = reader.GetInt32(5);
 
-						UserAccess userAccess = _userAccessRepository.SelectById(readAccessId);
+						UserAdmittance userAdmittance = _userAdmittanceRepository.SelectById(readAccessId);
 
-						UserSystem userSystem = new UserSystem(readId, readFirstName, readLastName, readEmail, readPhone, userAccess);
+						UserSystem userSystem = new UserSystem(readId, readFirstName, readLastName, readEmail, readPhone, userAdmittance);
 
 						return userSystem;
 
@@ -367,16 +360,9 @@ namespace DAL.OnlineStore.Repositories
 			return null;
 		}
 
-
-
-		public event RepositoryEvent RepositoryEvent;
-
-		private void DoRepositoryEvent(string location, string caption, string description)
+		public int GetCountDependencies(int id)
 		{
-			RepositoryEvent?.Invoke(location, caption, description);
+			throw new NotImplementedException();
 		}
-
-
-
 	}
 }

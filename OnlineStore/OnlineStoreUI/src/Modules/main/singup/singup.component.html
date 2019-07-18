@@ -1,0 +1,45 @@
+<div class="main-outlet-container">
+    <mat-form-field appearance="legacy">
+        <mat-label>First name:</mat-label>
+        <input matInput placeholder="Enter your first name" [(ngModel)] = "firstName">
+        <mat-hint class="message-error" >{{firstNameError}}</mat-hint>
+    </mat-form-field>
+    <mat-form-field appearance="legacy">
+        <mat-label>Last name:</mat-label>
+        <input matInput placeholder="Enter your last name" [(ngModel)] = "lastName">
+        <mat-hint class="message-error" >{{lastNameError}}</mat-hint>
+    </mat-form-field>
+    <mat-form-field appearance="legacy">
+        <mat-label>E-mail:</mat-label>
+        <input matInput placeholder="Enter your e-mail address" [(ngModel)] = "email">
+        <mat-hint class="message-error" >{{emailError}}</mat-hint>
+    </mat-form-field>
+    <mat-form-field appearance="legacy">
+        <mat-label>Phone:</mat-label>
+        <input matInput placeholder="Enter your phone number" [(ngModel)] = "phone">
+        <mat-hint class="message-error" >{{phoneError}}</mat-hint>
+    </mat-form-field>
+    <mat-form-field appearance="legacy">
+        <mat-label>Login:</mat-label>
+        <input matInput placeholder="Enter your login" [(ngModel)] = "login">
+        <mat-hint class="message-error" >{{loginError}}</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput placeholder="Enter your password" [type]="!hide ? 'password' : 'text'" [(ngModel)] = "password">
+        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="!hide">
+            <mat-icon>{{!hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-hint class="message-error" >{{passwordError}}</mat-hint>
+    </mat-form-field>
+    <mat-form-field>
+        <input matInput placeholder="Confirm your password" [type]="!hide ? 'password' : 'text'" [(ngModel)] = "confirmPassword">
+        <mat-hint class="message-error" >{{confirmPasswordError}}</mat-hint>
+    </mat-form-field>
+
+    <button mat-button (click)="registration(firstName, lastName, email, phone, login, password, confirmPassword)">Registration</button>
+
+    {{registrationMessage}}
+</div>
+
+
+

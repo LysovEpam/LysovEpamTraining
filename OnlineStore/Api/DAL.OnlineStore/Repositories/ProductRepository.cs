@@ -3,20 +3,23 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using CommonEntities;
+using CommonEntities.Additional;
 using DALContracts;
 using DALContracts.Repositories;
 
 namespace DAL.OnlineStore.Repositories
 {
-	public class ProductRepository : ExecuteCommandBase, IRepository<Product>, ILogRepository
+	public class ProductRepository : ExecuteCommandBase, IRepository<Product>
 	{
 		#region Stored procedure names
 
+		
 		const string SpSelectById = @"Product_SelectById";
 		const string SpSelectAll = @"Product_SelectAll";
 		const string SpInsert = @"Product_Insert";
 		const string SpUpdate = @"Product_Update";
 		const string SpDelete = @"Product_Delete";
+		const string SpGetDependencies = @"Product_CountDependencies";
 
 		#endregion
 
@@ -32,8 +35,8 @@ namespace DAL.OnlineStore.Repositories
 
 		public Product SelectById(int id)
 		{
-			try
-			{
+			//try
+			//{
 				Product productResult = null;
 
 				using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -59,15 +62,16 @@ namespace DAL.OnlineStore.Repositories
 					{
 						reader.Read();
 
-						int readId = reader.GetInt32(0);
-						decimal readPrice = reader.GetDecimal(1);
-						string readStatus = reader.GetString(2);
-						int readIdProductInformation = reader.GetInt32(3);
+						productResult = new Product
 
-						ProductInformation productInformation =
-							_productInformationRepository.SelectById(readIdProductInformation);
 
-						productResult = new Product(readId, readPrice, readStatus, productInformation);
+						{
+							IdEntity = reader.GetInt32(0),
+							Price = reader.GetDecimal(1),
+							ProductStatus = new ProductStatus(reader.GetString(2)),
+							IdProductInformation = reader.GetInt32(3),
+							ProductInformation =  _productInformationRepository.SelectById(reader.GetInt32(3))
+						};
 
 					}
 
@@ -76,21 +80,21 @@ namespace DAL.OnlineStore.Repositories
 				}
 
 				return productResult;
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(SelectById)}",
-					$"Ошибка при получении сущности {nameof(Product)}",
-					$"Текст исключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(SelectById)}",
+			//		$"Ошибка при получении сущности {nameof(Product)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
-			}
+			//	return null;
+			//}
 		}
 		public List<Product> SelectAll()
 		{
-			try
-			{
+			//try
+			//{
 				List<Product> products = null;
 
 				using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -111,15 +115,14 @@ namespace DAL.OnlineStore.Repositories
 
 						while (reader.Read())
 						{
-							int readId = reader.GetInt32(0);
-							decimal readPrice = reader.GetDecimal(1);
-							string readStatus = reader.GetString(2);
-							int readIdProductInformation = reader.GetInt32(3);
-
-							ProductInformation productInformation =
-								_productInformationRepository.SelectById(readIdProductInformation);
-
-							var product = new Product(readId, readPrice, readStatus, productInformation);
+							var product = new Product
+							{
+								IdEntity = reader.GetInt32(0),
+								Price = reader.GetDecimal(1),
+								ProductStatus = new ProductStatus(reader.GetString(2)),
+								IdProductInformation = reader.GetInt32(3),
+								ProductInformation = _productInformationRepository.SelectById(reader.GetInt32(3))
+							};
 
 							products.Add(product);
 
@@ -131,44 +134,44 @@ namespace DAL.OnlineStore.Repositories
 
 				return products;
 
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(SelectAll)}",
-					$"Ошибка при получении списка сущностей {nameof(Product)}",
-					$"Текст исключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(SelectAll)}",
+			//		$"Ошибка при получении списка сущностей {nameof(Product)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
-			}
+			//	return null;
+			//}
 		}
 		public List<Product> Find(Func<Product, bool> predicate)
 		{
-			try
-			{
+			//try
+			//{
 				var allList = SelectAll();
 
 				var result = allList.Where(predicate);
 
 				return result.ToList();
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Find)}",
-					$"Ошибка при поиске в списке сущностей {nameof(Product)}",
-					$"Текст исключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Find)}",
+			//		$"Ошибка при поиске в списке сущностей {nameof(Product)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
+			//	return null;
 
-			}
+			//}
 		}
 
 
 		public int? Insert(Product item)
 		{
-			try
-			{
+			//try
+			//{
 				var priceParam = new SqlParameter
 				{
 					ParameterName = "@Price",
@@ -177,7 +180,7 @@ namespace DAL.OnlineStore.Repositories
 				var statusParam = new SqlParameter
 				{
 					ParameterName = "@Status",
-					Value = item.Status
+					Value = item.ProductStatus.GetStatusName()
 				};
 				var productInformationIdParam = new SqlParameter
 				{
@@ -197,32 +200,32 @@ namespace DAL.OnlineStore.Repositories
 
 				return result;
 
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Insert)}",
-					$"Ошибка при создании новой сущности {nameof(Product)}",
-					$"Текст исключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Insert)}",
+			//		$"Ошибка при создании новой сущности {nameof(Product)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return null;
-			}
+			//	return null;
+			//}
 		}
 		public bool Update(Product item)
 		{
 			if (!item.IdEntity.HasValue)
 			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Update)}",
-					$"Ошибка при обновлении сущности {nameof(Product)}",
-					"Id сущности не может быть пустым");
+				//DoRepositoryEvent(
+				//	$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Update)}",
+				//	$"Ошибка при обновлении сущности {nameof(Product)}",
+				//	"Id сущности не может быть пустым");
 
 				return false;
 			}
 
 
-			try
-			{
+			//try
+			//{
 				var idParam = new SqlParameter
 				{
 					ParameterName = "@IdEntity",
@@ -236,7 +239,7 @@ namespace DAL.OnlineStore.Repositories
 				var statusParam = new SqlParameter
 				{
 					ParameterName = "@Status",
-					Value = item.Status
+					Value = item.ProductStatus.GetStatusName()
 				};
 				var productInformationIdParam = new SqlParameter
 				{
@@ -247,31 +250,31 @@ namespace DAL.OnlineStore.Repositories
 				var resultCommand = ExecuteCommand(SpUpdate, idParam, priceParam, statusParam, productInformationIdParam);
 
 				return resultCommand != null && (int)resultCommand == 1;
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Update)}",
-					$"Ошибка при обновлении сущности {nameof(Product)}",
-					$"Текст исключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Update)}",
+			//		$"Ошибка при обновлении сущности {nameof(Product)}",
+			//		$"Текст исключения: {e.Message}");
 
-				return false;
-			}
+			//	return false;
+			//}
 		}
 		public bool Delete(int id)
 		{
 			if (id < 1)
 			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Delete)}",
-					$"Ошибка при удалении сущности {nameof(Product)}",
-					"Id не может быть меньше 1");
+				//DoRepositoryEvent(
+				//	$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Delete)}",
+				//	$"Ошибка при удалении сущности {nameof(Product)}",
+				//	"Id не может быть меньше 1");
 
 				return false;
 			}
 
-			try
-			{
+			//try
+			//{
 				var idParam = new SqlParameter
 				{
 					ParameterName = "@IdEntity",
@@ -281,29 +284,37 @@ namespace DAL.OnlineStore.Repositories
 				var resultCommand = ExecuteCommand(SpDelete, idParam);
 
 				return resultCommand != null && (int)resultCommand == 1;
-			}
-			catch (Exception e)
-			{
-				DoRepositoryEvent(
-					$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Delete)}",
-					$"Ошибка при удалении сущности {nameof(Product)}",
-					$"Текст инсключения: {e.Message}");
+			//}
+			//catch (Exception e)
+			//{
+			//	DoRepositoryEvent(
+			//		$"DAL.OnlineStore - {nameof(ProductRepository)} - {nameof(Delete)}",
+			//		$"Ошибка при удалении сущности {nameof(Product)}",
+			//		$"Текст инсключения: {e.Message}");
 
-				return false;
-			}
+			//	return false;
+			//}
 		}
 
 
-		public event RepositoryEvent RepositoryEvent;
+		
 
-
-		private void DoRepositoryEvent(string location, string caption, string description)
+		public int GetCountDependencies(int id)
 		{
-			RepositoryEvent?.Invoke(location, caption, description);
+			var idParam = new SqlParameter
+			{
+				ParameterName = "@IdEntity",
+				Value = id
+			};
+
+			object resultCommand;
+
+			resultCommand = ExecuteCommand(SpGetDependencies, idParam);
+
+			if (resultCommand != null)
+				return (int)resultCommand;
+
+			return -1;
 		}
-
-
-
-
 	}
 }

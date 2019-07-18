@@ -5,15 +5,21 @@ namespace CommonEntities.Additional
 {
 	public class OrderStatus
 	{
+		public const string StatusNewOrder = "New order";
+		public const string StatusProcessed = "Processed";
+		public const string StatusPaid = "Paid";
+		public const string StatusWaitingForDelivery = "Waiting for delivery";
+		public const string StatusCanceled = "Canceled";
+		public const string StatusFulfilled = "Fulfilled";
+
 		public enum OrderStatusEnum
 		{
-			NewOrder,	
-			Processed,	
-			Paid,      
-			WaitingForDelivery,
-			Delivered, 
-			Fulfilled, 
-			Canceled
+			NewOrder = 10,
+			Processed = 11,
+			Paid = 12,
+			WaitingForDelivery =13,
+			Canceled =14,
+			Fulfilled = 15
 		}
 
 
@@ -33,21 +39,18 @@ namespace CommonEntities.Additional
 		{
 			return GetStatusName(Status);
 		}
-		
 
-		#region Статические методы получения статуса
 
 		public static string GetStatusName(OrderStatusEnum status)
 		{
 			switch (status)
 			{
-				case OrderStatusEnum.NewOrder: return "New order";
-				case OrderStatusEnum.Processed: return "Processed";
-				case OrderStatusEnum.Paid: return "Paid";
-				case OrderStatusEnum.WaitingForDelivery: return "Waiting for delivery";
-				case OrderStatusEnum.Delivered: return "Delivered";
-				case OrderStatusEnum.Fulfilled: return "Fulfilled";
-				case OrderStatusEnum.Canceled: return "Canceled";
+				case OrderStatusEnum.NewOrder: return StatusNewOrder;
+				case OrderStatusEnum.Processed: return StatusProcessed;
+				case OrderStatusEnum.Paid: return StatusPaid;
+				case OrderStatusEnum.WaitingForDelivery: return StatusWaitingForDelivery;
+				case OrderStatusEnum.Fulfilled: return StatusFulfilled;
+				case OrderStatusEnum.Canceled: return StatusCanceled;
 				default: throw new ArgumentOutOfRangeException(nameof(status), status, null);
 			}
 		}
@@ -55,17 +58,16 @@ namespace CommonEntities.Additional
 		{
 			switch (status)
 			{
-				case "New order": return OrderStatusEnum.NewOrder;
-				case "Processed": return OrderStatusEnum.Processed;
-				case "Paid": return OrderStatusEnum.Paid;
-				case "Waiting for delivery": return OrderStatusEnum.WaitingForDelivery;
-				case "Delivered": return OrderStatusEnum.Delivered;
-				case "Fulfilled": return OrderStatusEnum.Fulfilled;
-				case "Canceled": return OrderStatusEnum.Canceled;
+				case StatusNewOrder: return OrderStatusEnum.NewOrder;
+				case StatusProcessed: return OrderStatusEnum.Processed;
+				case StatusPaid: return OrderStatusEnum.Paid;
+				case StatusWaitingForDelivery: return OrderStatusEnum.WaitingForDelivery;
+				case StatusFulfilled: return OrderStatusEnum.Fulfilled;
+				case StatusCanceled: return OrderStatusEnum.Canceled;
 				default: throw new ArgumentOutOfRangeException(nameof(status), status, null);
 			}
 		}
-		
-		#endregion
+
+
 	}
 }

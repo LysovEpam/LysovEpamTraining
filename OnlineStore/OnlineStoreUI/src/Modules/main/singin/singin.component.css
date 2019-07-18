@@ -1,0 +1,8 @@
+.main-outlet-container {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+    margin-right: 20px;}
+  
+.message-error{
+    color: red;}

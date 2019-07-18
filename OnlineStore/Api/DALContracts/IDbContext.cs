@@ -5,7 +5,7 @@ namespace DALContracts
 {
 	public interface IDbContext
 	{
-		IRepositoryUserAccess UserAccesses { get; }
+		IRepositoryUserAdmittance UserAdmittances { get; }
 		IRepositoryUserSystem UsersSystem { get; }
 		IRepositoryUserAuthorizationToken UserAuthorizationsToken { get; }
 
@@ -16,9 +16,6 @@ namespace DALContracts
 
 
 		IRepository<UserOrder> UserOrders { get; }
-
-
-		event RepositoryEvent RepositoryEvent;
 
 	}
 }

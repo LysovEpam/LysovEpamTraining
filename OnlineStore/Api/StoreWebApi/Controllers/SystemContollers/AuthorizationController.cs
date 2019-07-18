@@ -1,12 +1,15 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using BLContracts.ActionResults;
-using BLContracts.SystemBl;
+using BLContracts.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using StoreWebApi.AuthorizationModel;
+using Microsoft.AspNetCore.Http;
+using StoreWebApi.FluentValidation;
+using AuthorizationResult = StoreWebApi.Models.ControllerResults.AuthorizationResult;
+using IAuthorizationService = BLContracts.SystemService.IAuthorizationService;
 
 
 namespace StoreWebApi.Controllers.SystemContollers
@@ -16,40 +19,79 @@ namespace StoreWebApi.Controllers.SystemContollers
 	public class AuthorizationController : ControllerBase
 	{
 
-		private readonly IAuthorizationBlModel _authorizationBlModel;
-		public AuthorizationController(IAuthorizationBlModel authorizationBlModel)
+		private readonly IAuthorizationService _authorizationService;
+		public AuthorizationController(IAuthorizationService authorizationService)
 		{
-			_authorizationBlModel = authorizationBlModel;
+			_authorizationService = authorizationService;
 		}
 
 
+		///  <summary>
+		///  User authorization
+		///  </summary>
+		///  <remarks>
+		///  Sample request:
+		/// 
+		///      POST /AuthorizationRequest
+		///      {
+		/// 		"Login": "user",
+		/// 		"Password": "12345678"
+		///      }
+		/// 
+		///  </remarks>
+		///  <param name="signingEncodingKey"></param>
+		///  <param name="authorizationRequest">Authorization data request</param>
+		///  <response code="200">Authorization completed successfully</response>
+		///  <response code="400">If the request is null</response>
+		///  <response code="409">If input error</response>
+		///  <response code="500">If a server error occurred while processing the request</response>
 		[HttpPost]
 		[AllowAnonymous]
-		public BLContracts.ActionResults.System.AuthorizationResult Authorization([FromServices] IJwtSigningEncodingKey signingEncodingKey, string login, string password)
+		[ProducesResponseType(typeof(AuthorizationResult), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+		public ActionResult Authorization([FromServices] IJwtSigningEncodingKey signingEncodingKey, [FromBody]AuthorizationRequest authorizationRequest)
 		{
+			#region Valid input data
 
-			BaseActionResult blResult = _authorizationBlModel.CheckAuthorization(login, password);
+			if (authorizationRequest == null)
+				return BadRequest("Empty request");
 
-			if (blResult.ResultConnection != BaseActionResult.ResultConnectionEnum.Correct)
-			{
-				var resultError = new BLContracts.ActionResults.System.AuthorizationResult(blResult, null);
-				return resultError;
-			}
+			var validator = new AuthorizationRequestValidator();
+			var validationResult = validator.Validate(authorizationRequest);
 
-			string role = _authorizationBlModel.GetUserRole(login, password).GetRoleName();
+			if (!validationResult.IsValid)
+				return Conflict("Invalid input data request");
+
+			#endregion
+			#region Check authorization
+
+			ServiceResult blResult = _authorizationService.CheckAuthorization(authorizationRequest);
+
+			if (blResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+				return Conflict(blResult.Message);
+
+			#endregion
+
+			var authorizationResult =_authorizationService.AuthorizationUser(authorizationRequest);
+
+			if (authorizationResult.sessionToken == null || authorizationResult.userRole == null)
+				return StatusCode(StatusCodes.Status500InternalServerError, "Failed to authenticate user, try again");
+
 
 			var claims = new[]
 			{
-				new Claim(ClaimTypes.Role, role),
-				new Claim(AuthorizationDataModel.ClaimLogin, login),
-				new Claim(AuthorizationDataModel.ClaimSessionToken,"SessionKey12345") //for test
+				new Claim(ClaimTypes.Role, authorizationResult.userRole.GetRoleName()),
+				new Claim(AuthorizationDataModel.ClaimLogin, authorizationRequest.Login),
+				new Claim(AuthorizationDataModel.ClaimSessionToken,authorizationResult.sessionToken)
 			};
 
 			var token = new JwtSecurityToken(
-				issuer: AuthorizationDataModel.ValidIssuer,
-				audience: AuthorizationDataModel.ValidAudience,
-				claims: claims,
-				expires: DateTime.Now + AuthorizationDataModel.AuthorizationTtl,
+				AuthorizationDataModel.ValidIssuer,
+				AuthorizationDataModel.ValidAudience,
+				claims,
+				expires: authorizationResult.authorizationFinish,
 				signingCredentials: new SigningCredentials(
 					signingEncodingKey.GetKey(),
 					signingEncodingKey.SigningAlgorithm)
@@ -57,16 +99,17 @@ namespace StoreWebApi.Controllers.SystemContollers
 
 			string jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-			var result = new BLContracts.ActionResults.System.AuthorizationResult(
-				BaseActionResult.ResultConnectionEnum.Correct, "", jwtToken);
+			var result = new AuthorizationResult(authorizationRequest.Login, authorizationResult.userRole, jwtToken,
+				authorizationResult.authorizationFinish);
 
-			return result;
+			
+			return Ok(result);
 
 
 		}
 
 
-		
+
 
 
 	}

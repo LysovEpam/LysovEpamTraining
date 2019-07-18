@@ -9,8 +9,4 @@
     <ProjectReference Include="..\DALContracts\DALContracts.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ActionResults\Main\" />
-  </ItemGroup>
-
 </Project>

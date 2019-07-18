@@ -1,4 +1,4 @@
-﻿using System;
+﻿using CommonEntities.Additional;
 
 namespace StoreWebApi.AuthorizationModel
 {
@@ -16,11 +16,15 @@ namespace StoreWebApi.AuthorizationModel
 
 		public const string JwtSchemeName = "JwtBearer";
 
-		public static TimeSpan AuthorizationTtl { get; } = new TimeSpan(0,10,0,0);
-
 
 		public const string ClaimLogin = "Login";
 		public const string ClaimSessionToken = "SessionToken";
+
+		public const string RoleUser = UserRole.RoleUser;
+		public const string RoleEditor = UserRole.RoleEditor;
+		public const string RoleAdmin = UserRole.RoleAdmin;
+		public const string RoleAllRoles = UserRole.RoleUser + ", " + UserRole.RoleEditor + ", " + UserRole.RoleAdmin;
+		public const string RoleEditorAndAdmin = UserRole.RoleEditor + ", " + UserRole.RoleAdmin;
 
 
 	}

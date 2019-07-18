@@ -39,5 +39,10 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock.Repositories
 		{
 			throw new NotImplementedException();
 		}
+
+		public int GetCountDependencies(int id)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

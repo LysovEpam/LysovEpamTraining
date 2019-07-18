@@ -1,0 +1,69 @@
+<div class="container-main">
+    <div class="container-main-select">
+        <div class = "container-select">
+
+            <mat-form-field appearance="legacy" >
+                <mat-label>Min price:</mat-label>
+                <input type="number" matInput placeholder="" [(ngModel)] = "priceMin">
+            </mat-form-field>
+
+            <mat-form-field appearance="legacy" >
+                <mat-label>Max price:</mat-label>
+                <input type="number" matInput placeholder="" [(ngModel)] = "priceMax">
+            </mat-form-field>
+
+            <mat-form-field >
+                <mat-label>Status</mat-label>
+                <mat-select [(value)]="selectStatus">                          
+                    <mat-option *ngFor = "let status of allStatus" [(value)]="status">{{status}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+
+            <div class="container-select-category">
+                <div>
+                    <mat-form-field >
+        
+                        <mat-label>Select a category</mat-label>
+                        <mat-select [(value)]="selected">                         
+                            <mat-option *ngFor = "let item of allProductCategories" [(value)]="item">{{item.categoryName}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                                
+                    <button mat-button (click)="addCategory(selected)">Add category</button>
+            
+                </div>
+        
+                <div class="flex-container">
+                    <div *ngFor = "let item of selectCategories">
+                        <div class="container-card-item">
+                            <button class="card-item-action" mat-button (click)="deleteCategory(item)"> delete </button>
+                            {{item.categoryName}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <mat-form-field appearance="legacy" >
+                <mat-label>Search string:</mat-label>
+                <input  matInput placeholder="" [(ngModel)] = "searchString">
+            </mat-form-field>
+
+
+
+
+
+
+            {{storeMessage}}
+
+            <button mat-button (click)="loadOutletProducts()">Search products</button>
+            
+        </div>
+    </div>
+    <div class="container-main-product">
+        <div class = "container-product-list">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+
+</div>

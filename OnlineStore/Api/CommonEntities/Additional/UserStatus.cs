@@ -4,6 +4,12 @@ namespace CommonEntities.Additional
 {
 	public class UserStatus
 	{
+
+		public const string StatusActive = "Active";
+		public const string StatusBlock = "Block";
+		public const string StatusDelete = "Delete";
+		
+
 		public enum StatusEnum
 		{
 			Active,
@@ -29,15 +35,14 @@ namespace CommonEntities.Additional
 		}
 		
 
-		#region Статические методы получения статуса
-
+		
 		public static string GetStatusName(StatusEnum status)
 		{
 			switch (status)
 			{
-				case StatusEnum.Active: return "User is active";
-				case StatusEnum.Block: return "User is block";
-				case StatusEnum.Delete: return "User is delete";
+				case StatusEnum.Active: return StatusActive;
+				case StatusEnum.Block: return StatusBlock;
+				case StatusEnum.Delete: return StatusDelete;
 				default: throw new ArgumentOutOfRangeException(nameof(status), status, null);
 			}
 		}
@@ -45,15 +50,14 @@ namespace CommonEntities.Additional
 		{
 			switch (status)
 			{
-				case "User is active": return StatusEnum.Active;
-				case "User is block": return StatusEnum.Block;
-				case "User is delete": return StatusEnum.Delete;
+				case StatusActive: return StatusEnum.Active;
+				case StatusBlock: return StatusEnum.Block;
+				case StatusDelete: return StatusEnum.Delete;
 				default: throw new ArgumentOutOfRangeException(nameof(status), status, null);
 			}
 		}
 		
-		#endregion
-
+		
 
 	}
 

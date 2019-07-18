@@ -9,15 +9,15 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock.Repositories
 	public class UserSystemRepositoryMock : IRepositoryUserSystem
 	{
 		private readonly List<UserSystem> _list;
-		public UserSystemRepositoryMock(IRepositoryUserAccess repositoryUserAccess)
+		public UserSystemRepositoryMock(IRepositoryUserAdmittance repositoryUserAdmittance)
 		{
 			_list = new List<UserSystem>();
 
 			for (int i = 1; i < 10; i++)
 			{
-				UserSystem userSystem = new UserSystem(i, $"firstName{i}", $"lastName{i}", $"email{i}", $"phone{i}", repositoryUserAccess.SelectById(i))
+				UserSystem userSystem = new UserSystem(i, $"firstName{i}", $"lastName{i}", $"email{i}", $"phone{i}", repositoryUserAdmittance.SelectById(i))
 				{
-					UserAccessId = i
+					UserAdmittanceId = i
 				};
 
 
@@ -27,7 +27,7 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock.Repositories
 		}
 		public UserSystem GetUserByLoginPasswordhash(string login, string passwordHash)
 		{
-			var tempList = _list.Where(c => c.UserAccess.Login == login && c.UserAccess.PasswordHash == passwordHash);
+			var tempList = _list.Where(c => c.UserAdmittance.Login == login && c.UserAdmittance.PasswordHash == passwordHash);
 
 			var list = tempList.ToList();
 
@@ -41,7 +41,7 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock.Repositories
 		{
 			int idEntity = _list[_list.Count - 1].IdEntity.Value;
 
-			UserSystem userSystem = new UserSystem(idEntity + 1, item.FirsName, item.LastName, item.Email, item.Phone, item.UserAccess);
+			UserSystem userSystem = new UserSystem(idEntity + 1, item.FirsName, item.LastName, item.Email, item.Phone, item.UserAdmittance);
 
 			_list.Add(userSystem);
 
@@ -97,14 +97,19 @@ namespace BL.OnlineStore.Tests.Mocks.RepositoryMock.Repositories
 					_list[i].LastName = item.LastName;
 					_list[i].Email = item.Email;
 					_list[i].Phone = item.Phone;
-					_list[i].UserAccess = item.UserAccess;
-					_list[i].UserAccessId = item.UserAccessId;
+					_list[i].UserAdmittance = item.UserAdmittance;
+					_list[i].UserAdmittanceId = item.UserAdmittanceId;
 
 					return true;
 				}
 			}
 
 			return false;
+		}
+
+		public int GetCountDependencies(int id)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
