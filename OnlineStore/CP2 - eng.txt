@@ -1,9 +1,0 @@
-use db - SQL correct request( create db first)
-named dictionaries
-eng
-UserAccess refact
-SOLID
-bl - service( name)
-middleware 
-DI!!! 
-Validate model
