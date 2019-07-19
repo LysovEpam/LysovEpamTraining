@@ -1,12 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Web.Http;
-using System.Web.Http.Cors;
 using BL.OnlineStore;
 using BL.OnlineStore.Services.MainServices;
 using BL.OnlineStore.Services.SystemServices;
-using BL.OnlineStore.Tests.Mocks;
 using BLContracts;
 using BLContracts.MainService;
 using BLContracts.SystemService;
@@ -100,36 +97,8 @@ namespace StoreWebApi
 			#endregion
 			#region DI
 
-
-
-
-			//================================================================================================
-			//DI old
-
-			//string stringConnection =@"Data Source=(local)\SQLEXPRESS; Initial Catalog=OnlineStore; Integrated Security=True";
-			//IPasswordHash passwordHash = new PasswordHash();
-			//IDbContext dbContext = new DbContext(stringConnection);
-			//var registrationBlModel = new RegistrationService(passwordHash, dbContext);
-			//var authorizationBlModel = new AuthorizationService(dbContext, passwordHash);
-			//var productCategoryBlModel = new ProductCategoryService(dbContext);
-			//var productInformationBlModel = new ProductInformationService(dbContext);
-			//var productBlModel = new ProductService(dbContext);
-			//var userOrderBlModel = new UserOrderService(dbContext);
-			//services.AddTransient<IRegistrationService>(s => registrationBlModel);
-			//services.AddTransient<IAuthorizationService>(s => authorizationBlModel);
-			//services.AddTransient<IProductCategoryService>(s => productCategoryBlModel);
-			//services.AddTransient<IProductInformationService>(s => productInformationBlModel);
-			//services.AddTransient<IProductService>(s => productBlModel);
-			//services.AddTransient<IUserOrderService>(s => userOrderBlModel);
-
-
-
-
-			//DI new 
-			string stringConnection = @"Data Source=(local)\SQLEXPRESS; Initial Catalog=OnlineStore; Integrated Security=True";
-
 			services.AddTransient<IPasswordHash, PasswordHash>();
-			services.AddTransient<IDbContext>(s=> new DbContext(stringConnection));
+			services.AddTransient<IDbContext>(s=> new DbContextCache(ServerConfig.GetStringConnection()));
 
 			services.AddTransient<IRegistrationService, RegistrationService>();
 			services.AddTransient<IAuthorizationService, AuthorizationService>();
@@ -138,19 +107,8 @@ namespace StoreWebApi
 			services.AddTransient<IProductService, ProductService>();
 			services.AddTransient<IUserOrderService, UserOrderService>();
 
-
-
-			//< IOperationSingletonInstance > (new Operation(Guid.Empty));
-
-
-			//services.AddTransient<IRegistrationBlModel, RegistrationBlModel>();
-
-
-
-			//================================================================================================
-
+			
 			#endregion
-
 
 			services.AddMvcCore();
 

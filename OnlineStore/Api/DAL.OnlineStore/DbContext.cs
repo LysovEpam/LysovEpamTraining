@@ -47,9 +47,6 @@ namespace DAL.OnlineStore
 
 		
 
-		protected virtual void DoRepositoryEvent(string location, string caption, string description)
-		{
-			
-		}
+		
 	}
 }

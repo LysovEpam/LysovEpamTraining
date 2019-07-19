@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Models\ControllerRequests\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

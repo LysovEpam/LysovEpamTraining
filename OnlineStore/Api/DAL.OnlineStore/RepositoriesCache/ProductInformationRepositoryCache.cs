@@ -7,59 +7,55 @@ using DALContracts.Repositories;
 
 namespace DAL.OnlineStore.RepositoriesCache
 {
-	public class ProductCategoryRepositoryCache : IRepository<ProductCategory>
+	public class ProductInformationRepositoryCache : IRepository<ProductInformation>
 	{
-		private readonly ProductCategoryRepository _productCategoryRepository;
+		private readonly ProductInformationRepository _productInformationRepository;
+		private static List<ProductInformation> _cacheList;
 
-		private static List<ProductCategory> _cacheList;
-
-
-		public ProductCategoryRepositoryCache(ProductCategoryRepository productCategoryRepository)
+		public ProductInformationRepositoryCache(ProductInformationRepository productInformationRepository)
 		{
-			_productCategoryRepository = productCategoryRepository;
-			_cacheList = new List<ProductCategory>();
-			_cacheList = _productCategoryRepository.SelectAll();
+			_productInformationRepository = productInformationRepository;
+			_cacheList = new List<ProductInformation>();
+			_cacheList = _productInformationRepository.SelectAll();
 		}
 
 		
 
-		public ProductCategory SelectById(int id)
+		public ProductInformation SelectById(int id)
 		{
 			// ReSharper disable once PossibleInvalidOperationException
-			var category = _cacheList.Where(c => c.IdEntity.Value == id);
+			var information = _cacheList.Where(c => c.IdEntity.Value == id);
 
 			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
 			// ReSharper disable once PossibleMultipleEnumeration
-			if (category != null && category.Count() == 1)
+			if (information != null && information.Count() == 1)
 				// ReSharper disable once PossibleMultipleEnumeration
-				return category.FirstOrDefault();
+				return information.FirstOrDefault();
 
-			var categoryDb = _productCategoryRepository.SelectById(id);
+			var categoryDb = _productInformationRepository.SelectById(id);
 
 			_cacheList.Add(categoryDb);
 
 			return categoryDb;
+
 		}
-		public List<ProductCategory> SelectAll()
+
+		public List<ProductInformation> SelectAll()
 		{
-
 			return _cacheList;
-
-			//return _productCategoryRepository.SelectAll();
 		}
-		public List<ProductCategory> Find(Func<ProductCategory, bool> predicate)
+
+		public List<ProductInformation> Find(Func<ProductInformation, bool> predicate)
 		{
 			var categories = _cacheList.Where(predicate);
 
 			return categories.ToList();
-			
-			//return _productCategoryRepository.Find(predicate);
 		}
 
 
-		public int? Insert(ProductCategory item)
+		public int? Insert(ProductInformation item)
 		{
-			var insertResult = _productCategoryRepository.Insert(item);
+			var insertResult = _productInformationRepository.Insert(item);
 
 			if (insertResult.HasValue)
 			{
@@ -70,9 +66,9 @@ namespace DAL.OnlineStore.RepositoriesCache
 			return insertResult;
 		}
 
-		public bool Update(ProductCategory item)
+		public bool Update(ProductInformation item)
 		{
-			var updateResult = _productCategoryRepository.Update(item);
+			var updateResult = _productInformationRepository.Update(item);
 
 			if (updateResult)
 			{
@@ -80,13 +76,12 @@ namespace DAL.OnlineStore.RepositoriesCache
 				_cacheList[_cacheList.FindIndex(c => c.IdEntity.Value == item.IdEntity.Value)] = item;
 			}
 
-
-
 			return updateResult;
 		}
+
 		public bool Delete(int id)
 		{
-			var deleteResult = _productCategoryRepository.Delete(id);
+			var deleteResult = _productInformationRepository.Delete(id);
 
 			if (deleteResult)
 			{
@@ -102,7 +97,7 @@ namespace DAL.OnlineStore.RepositoriesCache
 
 		public int GetCountDependencies(int id)
 		{
-			return _productCategoryRepository.GetCountDependencies(id);
+			return _productInformationRepository.GetCountDependencies(id);
 		}
 	}
 }

@@ -114,8 +114,8 @@ namespace StoreWebApi.Controllers.Main
 			if (blResult.products != null && !blResult.products.Any())
 				return StatusCode(StatusCodes.Status404NotFound, "Product do not exist");
 
-
 			return Ok(blResult.products);
+
 		}
 
 		#endregion
