@@ -1,96 +1,76 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BL.OnlineStore.BlModels;
-using BLContracts;
 using BLContracts.ActionResults;
 using BLContracts.MainService;
-using CommonEntities;
+using BLContracts.Models;
+using CommonEntities.Additional;
 using DALContracts;
 
 namespace BL.OnlineStore.Services.MainServices
 {
-	public class UserSystemService : BaseBlModel, IUserSystemService
+	public class UserSystemService :  IUserSystemService
 	{
 		private readonly IDbContext _dbContext;
 
-		public UserSystemService(IDbContext dbContext, IProgramLogRegister programLogRegister)
-			: base(programLogRegister)
+		public UserSystemService(IDbContext dbContext)
 		{
 			_dbContext = dbContext;
+		}
+
+		public (ServiceResult actionResult, SystemUserData systemUserData) GetUserInformation(string sessionToken, string login)
+		{
+			var userByToken = _dbContext.UserAuthorizationsToken.GetByToken(sessionToken);
+
+
+			if (userByToken.UserSystem.UserAdmittance.Login.ToLower() != login.ToLower())
+			{
+				return (new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError,
+					"Unable to place an order. User authorization failed. Try logging in again."), null);
+			}
+
 			
-		}
 
-
-		public (ServiceResult, UserSystem) GetById(int id)
-		{
-			var userSystem = _dbContext.UsersSystem.SelectById(id);
-
-			ServiceResult actionResult;
-
-			if (userSystem == null)
-				actionResult = new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError, "");
-			else
+			SystemUserData dataResult = new SystemUserData
 			{
-				actionResult = new ServiceResult(ServiceResult.ResultConnectionEnum.Correct, "");
-				userSystem.UserAdmittance = null;
-			}
+				Login = login,
+				Email = userByToken.UserSystem.Email,
+				Phone = userByToken.UserSystem.Phone,
+				FirstName = userByToken.UserSystem.FirsName,
+				LastName = userByToken.UserSystem.LastName,
+				Status = userByToken.UserSystem.UserAdmittance.UserStatus.GetStatusName(),
+				Role = userByToken.UserSystem.UserAdmittance.UserRole.GetRoleName()
+			};
 
+			return (new ServiceResult(ServiceResult.ResultConnectionEnum.Correct,""), dataResult);
 
-
-			return (actionResult, userSystem);
 		}
 
-		public (ServiceResult, UserSystem) GetByLogin(string login)
+		public ServiceResult UpdateUserByMyself(string sessionToken, SystemUserData userData)
 		{
-			if (login == null)
+			var userByToken = _dbContext.UserAuthorizationsToken.GetByToken(sessionToken);
+
+			if (userByToken.UserSystem.UserAdmittance.Login != userData.Login)
 			{
-				ServiceResult actionResultError =
-					new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError, "Логин не может быть пустым");
-
-				return (actionResultError, null);
+				return new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError,
+					"Unable to place an order. User authorization failed. Try logging in again.");
 			}
+			
 
-			var list = _dbContext.UsersSystem.Find(c => c.UserAdmittance.Login == login);
+			var user = userByToken.UserSystem;
 
-			ServiceResult actionResult;
+			user.Email = userData.Email;
+			user.Phone = userData.Phone;
+			user.FirsName = userData.FirstName;
+			user.LastName = userData.LastName;
 
-			if (list == null || list.Count != 1)
-			{
-				actionResult = new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError, "");
-				return (actionResult, null);
-			}
+			var updateResult = _dbContext.UsersSystem.Update(user);
 
-			actionResult = new ServiceResult(ServiceResult.ResultConnectionEnum.Correct, "");
+			if(!updateResult)
+				return new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError,
+					"Unable to change user information.");
 
-			var user = list.FirstOrDefault();
-			user.UserAdmittance = null;
-
-			return (actionResult, user);
-
+			return new ServiceResult(ServiceResult.ResultConnectionEnum.Correct, "");
 
 
 		}
-		public (ServiceResult, List<UserSystem>) GetAll()
-		{
-			throw new NotImplementedException();
-		}
-
-		public (ServiceResult, UserSystem) GetBySelf(string sessionToken)
-		{
-			throw new NotImplementedException();
-		}
-
-
-		public ServiceResult UpdateUser(string sessionToken, UserSystem user)
-		{
-			throw new NotImplementedException();
-		}
-		public ServiceResult DeleteUser(string sessionToken, int id)
-		{
-			throw new NotImplementedException();
-		}
-
-		
 	}
 }

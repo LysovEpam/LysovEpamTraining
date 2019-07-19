@@ -36,5 +36,11 @@ export class ApiSettingsService {
     getUrlProductUpdate():string  {return this.apiUrl + "/Product/Update";}
     getUrlProductDelete():string  {return this.apiUrl + "/Product/Delete";}
 
-    
+    //Order
+    getUrlOrderGetById():string  {return this.apiUrl + "/Order/GetById";}
+    getUrlOrderCreate():string  {return this.apiUrl + "/Order/Create";}
+
+    //System users
+    getUrlUserGetByMyself():string  {return this.apiUrl + "/User/GetByMyself";}
+    getUrlUserUpdateByMyself():string  {return this.apiUrl + "/User/UpdateByMyself";}
 }

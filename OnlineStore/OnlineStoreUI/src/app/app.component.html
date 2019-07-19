@@ -31,7 +31,9 @@
                   </li>
                 </ul>
               </div>  
-              <a routerLink="shopping-basket" class="button shopping-basket">Shopping basket</a>
+
+              
+              <a routerLink="" (click)="showBasket()" class="button shopping-basket">Shopping basket</a>
               <a routerLink="user-dashboard" class="button singup">User account</a>
               <a routerLink="" (click)="logOut()">Log out</a>
           </div> 
@@ -53,7 +55,7 @@
               <a routerLink="test">Test!!!</a>
             </li>
             <li>
-              <a routerLink="store">Store</a>
+              <a routerLink="" (click)="showStore()">Store</a>
             </li>
             <li>
               <a routerLink="news">News</a>

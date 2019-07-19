@@ -106,8 +106,9 @@ namespace StoreWebApi
 			services.AddTransient<IProductInformationService, ProductInformationService>();
 			services.AddTransient<IProductService, ProductService>();
 			services.AddTransient<IUserOrderService, UserOrderService>();
+			services.AddTransient<IUserSystemService, UserSystemService>();
 
-			
+
 			#endregion
 
 			services.AddMvcCore();

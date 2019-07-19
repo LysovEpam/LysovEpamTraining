@@ -1,0 +1,13 @@
+.container-main
+{
+    display: flex;
+    background: #b6cbf18f;
+    min-width: 400px;
+    margin:0px;
+    padding:0px;
+}
+
+.container-element{
+    display: flex;
+    flex-direction: column;
+}

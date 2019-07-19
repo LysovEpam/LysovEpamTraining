@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { UserRole, UserRoleEnum } from 'src/model/entities/apiEntities/additional/userRole';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +22,12 @@ export class LocalStorageService {
 
     getProductCart():number[]{
       
+      let contain = localStorage.getItem('productCart');
+      if(contain==null || contain.length==0) {
+        this.deleteAllProductCart();
+      }
+        
+
       let storedCart = JSON.parse(localStorage.getItem('productCart'));
       if(storedCart == null)
         return[];
@@ -48,7 +53,8 @@ export class LocalStorageService {
     }
 
     deleteAllProductCart(){
-      localStorage.setItem("productCart", "");
+      var storedCart: number[] =[];
+      localStorage.setItem("productCart", JSON.stringify(storedCart));
     }
     
 

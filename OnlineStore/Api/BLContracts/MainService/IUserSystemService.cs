@@ -1,17 +1,13 @@
 ﻿using System.Collections.Generic;
 using BLContracts.ActionResults;
+using BLContracts.Models;
 using CommonEntities;
 
 namespace BLContracts.MainService
 {
 	public interface IUserSystemService
 	{
-		(ServiceResult, UserSystem) GetById(int id);
-		(ServiceResult, List<UserSystem>) GetAll();
-		(ServiceResult, UserSystem) GetByLogin(string login);
-		(ServiceResult, UserSystem) GetBySelf(string sessionToken);
-		ServiceResult UpdateUser(string sessionToken, UserSystem user);
-		ServiceResult DeleteUser(string sessionToken, int id);
-
+		(ServiceResult actionResult, SystemUserData systemUserData) GetUserInformation(string sessionToken,string login);
+		ServiceResult UpdateUserByMyself(string sessionToken, SystemUserData userData);
 	}
 }

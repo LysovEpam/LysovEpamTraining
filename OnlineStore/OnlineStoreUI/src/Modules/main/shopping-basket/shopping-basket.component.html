@@ -3,6 +3,11 @@
             <div class = "container-select">
     
                 {{BasketMessage}}
+
+                <mat-form-field appearance="legacy" >
+                    <mat-label>Address:</mat-label>
+                    <input matInput placeholder="" [(ngModel)] = "address">
+                </mat-form-field>
     
                 <button mat-button (click)="PlaceOrder()">Place an order</button>
                 

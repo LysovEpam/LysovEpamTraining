@@ -31,6 +31,10 @@ export class AppComponent implements OnInit {
         this.querySubscription = activateRoute.queryParams.subscribe( (queryParam: any) => { this.checkUserLogin(); } );
     } 
 
+    ngOnInit(){
+       
+    }
+
     checkUserLogin(){
         
         if(this.localStorageService.getAuthorizationWordDate() > new Date(Date.now()))
@@ -74,8 +78,27 @@ export class AppComponent implements OnInit {
         this.loggedAdmin = false;
     }
 
-    ngOnInit(){
-       
+    
+
+    showStore(){
+        this.router.navigate(['store/products'], {
+            queryParams:{
+              'action': 'selectFilter',
+              'minCost': 0,
+              'maxCost': 0,
+              'productSearch': '',
+              'productStatus': '',
+              'idProductCategory': [],
+            
+            }
+          });
+    }
+
+    showBasket(){
+        this.router.navigate(['shopping-basket/products'], {
+            queryParams:{
+              'action': 'showProductToCart'}
+          });
     }
 }
 
