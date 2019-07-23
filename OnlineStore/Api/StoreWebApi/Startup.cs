@@ -2,11 +2,9 @@
 using System.IO;
 using System.Reflection;
 using BL.OnlineStore;
-using BL.OnlineStore.Services.MainServices;
-using BL.OnlineStore.Services.SystemServices;
+using BL.OnlineStore.Services;
 using BLContracts;
-using BLContracts.MainService;
-using BLContracts.SystemService;
+using BLContracts.Services;
 using DAL.OnlineStore;
 using DALContracts;
 using Microsoft.AspNetCore.Builder;

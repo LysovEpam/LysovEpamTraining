@@ -1,0 +1,46 @@
+.container-main{
+    display: flex;
+    /* margin:0;
+    padding:0;  */
+}
+
+.container-main-select{
+    background: #b6cbf18f;
+    min-width: 250px;
+    margin:0px;
+    padding:0px;
+}
+.container-main-product{
+    background: #f0e39b5d;
+    margin:0;
+    padding:0;
+    width: 100%; 
+}
+
+.container-select{
+    display: flex;
+    flex-direction: column;
+    margin:15px;
+    padding:0px;
+}
+
+.container-product-list{
+    
+   margin: 5px;
+   padding:0;
+}
+
+.container-select-category{
+    padding: 3px;
+    background: #aaaaaa22;
+  }
+
+  .flex-container{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container-card-item{
+    background: #4a644422;    
+     margin:2px; 
+  }

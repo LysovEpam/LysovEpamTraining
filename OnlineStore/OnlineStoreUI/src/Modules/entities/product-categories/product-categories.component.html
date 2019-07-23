@@ -17,11 +17,7 @@
 
     <table mat-table [dataSource]="dataSource">
 
-        <ng-container matColumnDef="idEntity">
-            <th mat-header-cell *matHeaderCellDef> Id product category </th>
-            <td mat-cell *matCellDef="let element"> {{element.idEntity}} </td>
-        </ng-container>
-                
+                       
         <ng-container matColumnDef="categoryName">
             <th mat-header-cell *matHeaderCellDef> Category name </th>
             <td mat-cell *matCellDef="let element">  

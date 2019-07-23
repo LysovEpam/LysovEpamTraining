@@ -1,57 +1,8 @@
-<p>user-dashboard works!</p>
-
 <div class="container-main">
-
-    <mat-form-field appearance="legacy">
-        <mat-label>First name:</mat-label>
-        <input matInput placeholder="Enter your first name" [(ngModel)] = "systemUserData.firstName">
-    </mat-form-field>
-
-    <mat-form-field appearance="legacy">
-        <mat-label>Last name:</mat-label>
-        <input matInput placeholder="Enter your last name" [(ngModel)] = "systemUserData.lastName">
-    </mat-form-field>
-
-    <mat-form-field appearance="legacy">
-        <mat-label>E-mail:</mat-label>
-        <input matInput placeholder="Enter your e-mail address" [(ngModel)] = "systemUserData.email">
-    </mat-form-field>
-
-    <mat-form-field appearance="legacy">
-        <mat-label>Phone:</mat-label>
-        <input matInput placeholder="Enter your phone number" [(ngModel)] = "systemUserData.phone">
-    </mat-form-field>
-
-    <mat-form-field appearance="legacy">
-        <mat-label>Login:</mat-label>
-        <input matInput placeholder="Enter your login" [(ngModel)] = "systemUserData.login" readonly>
-    </mat-form-field>
-
-    <mat-form-field appearance="legacy">
-        <mat-label>Role:</mat-label>
-        <input matInput placeholder="" [(ngModel)] = "systemUserData.role" readonly>
-    </mat-form-field>
-
-    <mat-form-field appearance="legacy">
-        <mat-label>Status:</mat-label>
-        <input matInput placeholder="" [(ngModel)] = "systemUserData.status" readonly>
-    </mat-form-field>
-
-    <mat-form-field>
-        <input matInput placeholder="Enter your password" [type]="!hide ? 'password' : 'text'" [(ngModel)] = "password">
-        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="!hide">
-            <mat-icon>{{!hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-        </button>
-    </mat-form-field>
-
-    <mat-form-field>
-        <input matInput placeholder="Confirm your password" [type]="!hide ? 'password' : 'text'" [(ngModel)] = "confirmPassword">
-        <mat-hint class="message-error" >{{confirmPasswordError}}</mat-hint>
-    </mat-form-field>
+    <div class="container-element">
+        <button mat-button (click)="showUserOrders()">Show my orders</button>
+        <button mat-button (click)="updateUserInformation()">Change my information</button>
         
-    <button mat-button (click)="saveNewInformation(firstName, lastName, email, phone, login, password, confirmPassword)">Update information</button>
-        
-    {{accountMessage}}
-
-
+            
+    <div>
 </div>

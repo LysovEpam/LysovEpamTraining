@@ -2,10 +2,10 @@ import { Component, OnInit} from '@angular/core';
 import { ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import { AuthorizationRequest } from 'src/model/entities/apiRequests/AuthorizationRequest';
-import { AuthorizationService } from 'src/Services/authorization.service';
+import { AuthorizationService } from 'src/services/authorization.service';
 import { AuthorizationResult } from 'src/model/entities/apiResults/AuthorizationResult';
-import { LocalStorageService } from 'src/Services/localstorage.service';
-import { ServerErrorsService } from 'src/Services/server-errors.service';
+import { LocalStorageService } from 'src/services/localstorage.service';
+import { ServerErrorsService } from 'src/services/server-errors.service';
 import { UserRoleEnum, UserRole } from 'src/model/entities/apiEntities/additional/userRole';
 
 @Component({

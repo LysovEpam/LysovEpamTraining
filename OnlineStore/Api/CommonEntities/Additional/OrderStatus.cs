@@ -5,10 +5,10 @@ namespace CommonEntities.Additional
 {
 	public class OrderStatus
 	{
-		public const string StatusNewOrder = "New order";
+		public const string StatusNewOrder = "NewOrder";
 		public const string StatusProcessed = "Processed";
 		public const string StatusPaid = "Paid";
-		public const string StatusWaitingForDelivery = "Waiting for delivery";
+		public const string StatusWaitingForDelivery = "WaitingForDelivery";
 		public const string StatusCanceled = "Canceled";
 		public const string StatusFulfilled = "Fulfilled";
 

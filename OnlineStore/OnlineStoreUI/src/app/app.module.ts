@@ -30,6 +30,8 @@ import { ConfirmDialog } from 'src/Modules/dialog-modules/confirm-dialog/confirm
 import { MessageDialog } from 'src/Modules/dialog-modules/message-dialog/message-dialog';
 import { CategoryDialog } from 'src/Modules/dialog-modules/category-dialog/category-dialog';
 import { ShoppingBasketComponent } from '../Modules/main/shopping-basket/shopping-basket.component';
+import { ProductCartDialog } from 'src/Modules/dialog-modules/product-cart/product-cart';
+import { OrderFilterComponent } from 'src/Modules/entities/orders-filter/orders-filters.component';
 
 
 const appRoutes: Routes = [
@@ -55,13 +57,16 @@ const appRoutes: Routes = [
     
 
   {path:'test', component: TestComponent},
-
+  
   { path: 'store', component: StoreComponent,
       children: [ {path: 'products', component: ProductsComponent }, ]
   },
 
   { path: 'shopping-basket', component: ShoppingBasketComponent,
       children: [ {path: 'products', component: ProductsComponent }, ]
+  },
+  { path: 'orders-filters', component: OrderFilterComponent,
+      children: [ {path: 'orders', component: OrdersComponent }, ]
   },
 
   {path:'**', component: NotFoundComponent}
@@ -92,11 +97,13 @@ const appRoutes: Routes = [
     ConfirmDialog,
     MessageDialog,
     CategoryDialog,
-    ShoppingBasketComponent
+    ShoppingBasketComponent,
+    ProductCartDialog,
+    OrderFilterComponent
 
                   
   ],
-  entryComponents: [ConfirmDialog, MessageDialog, CategoryDialog],
+  entryComponents: [ConfirmDialog, MessageDialog, CategoryDialog, ProductCartDialog],
   imports: [
    
     RouterModule,

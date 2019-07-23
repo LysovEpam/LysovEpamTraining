@@ -55,5 +55,10 @@ namespace DAL.OnlineStore.RepositoriesCache
 		{
 			return _userSystemRepository.GetCountDependencies(id);
 		}
+
+		public UserSystem GetUserByLogin(string login)
+		{
+			return _userSystemRepository.GetUserByLogin(login);
+		}
 	}
 }

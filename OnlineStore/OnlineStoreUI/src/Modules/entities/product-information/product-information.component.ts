@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription, identity } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { LocalStorageService } from 'src/Services/localstorage.service';
-import { ProductCategoryServerService } from 'src/Services/product-category-server.service';
+import { LocalStorageService } from 'src/services/localstorage.service';
+import { ProductCategoryServerService } from 'src/services/product-category-server.service';
 import { ProductCategory } from 'src/model/entities/apiEntities/productCategory';
 import { ProductInformation } from 'src/model/entities/apiEntities/productInformation';
 import { DialogData } from 'src/Modules/dialog-modules/confirm-dialog/confirm-dialog';
 import { MessageDialog } from 'src/Modules/dialog-modules/message-dialog/message-dialog';
 import {MatDialog } from '@angular/material/dialog';
-import { ProductInformationServerService } from 'src/Services/product-information-server.service';
-import { ServerErrorsService } from 'src/Services/server-errors.service';
+import { ProductInformationServerService } from 'src/services/product-information-server.service';
+import { ServerErrorsService } from 'src/services/server-errors.service';
 import { CategoryDialogData } from 'src/Modules/dialog-modules/category-dialog/category-dialog';
 import { CategoryDialog } from 'src/Modules/dialog-modules/category-dialog/category-dialog';
 
@@ -106,8 +106,7 @@ export class ProductInformationComponent implements OnInit {
       this.typeActionEnum = typeActionEnum.create;
       this.buttonSaveText = 'Create new entity';
     }
-
-    if(paramEntityAction!=null && paramEntityAction == 'update')
+    else if(paramEntityAction!=null && paramEntityAction == 'update')
     {
       this.typeActionEnum = typeActionEnum.update;
       this.buttonSaveText = 'Update entity';

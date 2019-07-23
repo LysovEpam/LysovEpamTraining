@@ -38,7 +38,14 @@ export class ApiSettingsService {
 
     //Order
     getUrlOrderGetById():string  {return this.apiUrl + "/Order/GetById";}
+    getUrlOrderGetAll():string  {return this.apiUrl + "/Order/GetAll";}
+    getUrlOrderGetByUser():string  {return this.apiUrl + "/Order/GetByUser";}
+    getUrlOrderGetBySearch():string  {return this.apiUrl + "/Order/GetBySearch";}
     getUrlOrderCreate():string  {return this.apiUrl + "/Order/Create";}
+    getUrlOrderUpdateOrder():string  {return this.apiUrl + "/Order/UpdateOrder";}
+    getUrlOrderDeleteOrder():string  {return this.apiUrl + "/Order/DeleteOrder";}
+
+
 
     //System users
     getUrlUserGetByMyself():string  {return this.apiUrl + "/User/GetByMyself";}

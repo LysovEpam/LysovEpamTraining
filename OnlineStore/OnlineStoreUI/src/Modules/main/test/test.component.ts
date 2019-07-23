@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { LocalStorageService } from 'src/Services/localstorage.service';
+import { LocalStorageService } from 'src/services/localstorage.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ApiSettingsService } from 'src/Services/api-settings.service';
+import { ApiSettingsService } from 'src/services/api-settings.service';
 import { Router } from '@angular/router';
 import { ProductDataRequest } from 'src/model/entities/apiRequests/productDataRequest';
 import { ProductSearchRequest } from 'src/model/entities/apiRequests/productSearchRequest';
@@ -104,15 +104,55 @@ export class TestComponent implements OnInit {
     });
   }
 
-  productListCart(){
-    this.router.navigate(['/products'], {
+  ordersChangeAll(){
+    this.router.navigate(['/orders'], {
       queryParams:{
-        'action': 'showProductToCart'}
+        'action': 'changeAll'}
     });
   }
+
+  ordersShowMyOrders(){
+    this.router.navigate(['/orders'], {
+      queryParams:{
+        'action': 'showMyOrders'}
+    });
+  }
+
+  
+  ordersSelectFilter(){
+    this.router.navigate(['/orders'], {
+      queryParams:{
+        'action': 'selectFilter',
+        'search':'',
+        'status':''
+
+      }
+    });
+  }
+
+  orderShow(){
+    this.router.navigate(['/order'], {
+      queryParams:{
+        'action': 'show',
+        'idOrder':1
+      }
+    });
+  }
+
+  orderUpdate(){
+    this.router.navigate(['/order'], {
+      queryParams:{
+        'action': 'update',
+        'idOrder':1
+      }
+    });
+  }
+
+  
 
 
 
   
 
 }
+

@@ -1,19 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription, identity } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { LocalStorageService } from 'src/Services/localstorage.service';
-import { ProductCategoryServerService } from 'src/Services/product-category-server.service';
+import { LocalStorageService } from 'src/services/localstorage.service';
+import { ProductCategoryServerService } from 'src/services/product-category-server.service';
 import { ProductCategory } from 'src/model/entities/apiEntities/productCategory';
 import { ProductInformation } from 'src/model/entities/apiEntities/productInformation';
 import { DialogData } from 'src/Modules/dialog-modules/confirm-dialog/confirm-dialog';
 import { MessageDialog } from 'src/Modules/dialog-modules/message-dialog/message-dialog';
 import {MatDialog } from '@angular/material/dialog';
-import { ProductInformationServerService } from 'src/Services/product-information-server.service';
-import { ServerErrorsService } from 'src/Services/server-errors.service';
-import { ProductServerService } from 'src/Services/product-server.service';
+import { ProductInformationServerService } from 'src/services/product-information-server.service';
+import { ServerErrorsService } from 'src/services/server-errors.service';
+import { ProductServerService } from 'src/services/product-server.service';
 import { Product } from 'src/model/entities/apiEntities/product';
 import { ProductStatus, ProductStatusEnum } from 'src/model/entities/apiEntities/additional/productStatus';
 import { ProductDataRequest } from 'src/model/entities/apiRequests/productDataRequest';
+import { UserRoleEnum } from 'src/model/entities/apiEntities/additional/userRole';
 
 enum typeActionEnum{
   create,
@@ -52,6 +53,10 @@ export class ProductComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    
+
+
 
     this.allProductStatus = ProductStatus.getAllProdcutStatus();
     this.loadProductInformations();

@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { LocalStorageService } from 'src/Services/localstorage.service';
+import { LocalStorageService } from 'src/services/localstorage.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ApiSettingsService } from 'src/Services/api-settings.service';
+import { ApiSettingsService } from 'src/services/api-settings.service';
 import { Router } from '@angular/router';
-import { ProductDataRequest } from 'src/model/entities/apiRequests/productDataRequest';
-import { ProductSearchRequest } from 'src/model/entities/apiRequests/productSearchRequest';
-import { ProductStatusEnum } from 'src/model/entities/apiEntities/additional/productStatus';
+import { UserRoleEnum } from 'src/model/entities/apiEntities/additional/userRole';
 
 @Component({
   selector: 'app-editor-dashboard',
@@ -18,6 +16,17 @@ export class EditorDashboardComponent implements OnInit {
     private apiSettings:ApiSettingsService) { }
 
   ngOnInit() {
+    let userRoleName: string = this.localStorageService.getUserRole();
+    let role: UserRoleEnum = UserRoleEnum[userRoleName];
+    let userRoleEnum: UserRoleEnum = (<any>UserRoleEnum)[role];
+
+    if(userRoleEnum != UserRoleEnum.Admin && 
+      userRoleEnum != UserRoleEnum.Editor)
+    {
+      this.router.navigate(['/singin'], {
+        queryParams:{ 'authorizationMessage': 
+        'You do not have permissions, authorization is required to access the editor panel'}});
+    }
   }
 
   productCategoryCreate(){

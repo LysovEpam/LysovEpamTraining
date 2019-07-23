@@ -12,6 +12,7 @@ namespace DAL.OnlineStore.Repositories
 		#region Stored procedure names
 
 		const string SpSelectByLoginPassword = @"UserSystem_SelectByLoginPassword";
+		const string SpSelectByLogin = @"UserSystem_SelectByLogin";
 		const string SpInsert = @"UserSystem_Insert";
 		const string SpUpdate = @"UserSystem_Update";
 		const string SpDelete = @"UserSystem_Delete";
@@ -45,8 +46,7 @@ namespace DAL.OnlineStore.Repositories
 				Value = passwordHash
 			};
 
-			Console.WriteLine($"{login}={passwordHash}");
-
+			
 			var user = ReadUser(SpSelectByLoginPassword, loginParam, passwordHashParam);
 
 			return user;
@@ -363,6 +363,19 @@ namespace DAL.OnlineStore.Repositories
 		public int GetCountDependencies(int id)
 		{
 			throw new NotImplementedException();
+		}
+
+		public UserSystem GetUserByLogin(string login)
+		{
+			var loginParam = new SqlParameter
+			{
+				ParameterName = "@Login",
+				Value = login
+			};
+			
+			var user = ReadUser(SpSelectByLogin, loginParam);
+
+			return user;
 		}
 	}
 }

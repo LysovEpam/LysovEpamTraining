@@ -1,6 +1,6 @@
 
  import { Component, OnInit } from '@angular/core';
- import { LocalStorageService } from 'src/Services/localstorage.service';
+ import { LocalStorageService } from 'src/services/localstorage.service';
  import { Subscription } from 'rxjs';
  import { Router, ActivatedRoute } from '@angular/router';
  import { UserRole } from 'src/model/entities/apiEntities/additional/userRole';
@@ -76,6 +76,10 @@ export class AppComponent implements OnInit {
         this.loggedUser = false;
         this.loggedEditor = false;
         this.loggedAdmin = false;
+
+        this.router.navigate(['singin']);
+
+
     }
 
     

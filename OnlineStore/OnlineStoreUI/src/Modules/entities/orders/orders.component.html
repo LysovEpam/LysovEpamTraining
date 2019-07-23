@@ -1,1 +1,83 @@
-<p>orders works!</p>
+<div class="mat-elevation-z8">
+
+        <div class="main-container">
+            {{orderMessage}}
+        </div>
+           
+      
+      
+        <table mat-table [dataSource]="dataSource">
+
+                <ng-container matColumnDef="idOrder" class="table-column-date">
+                        <th mat-header-cell *matHeaderCellDef> Id order </th>
+                        <td mat-cell *matCellDef="let element">  
+                            {{element.idEntity}}
+                        </td>
+                </ng-container>
+
+                <ng-container matColumnDef="dateOrder" class="table-column-date">
+                    <th mat-header-cell *matHeaderCellDef> Date order </th>
+                    <td mat-cell *matCellDef="let element">  
+                        {{element.dateOrder}}
+                    </td>
+                </ng-container>
+
+               
+                <ng-container matColumnDef="address">
+                        <th mat-header-cell *matHeaderCellDef> Address </th>
+                        <td mat-cell *matCellDef="let element">  
+                            <textarea rows="3" matInput placeholder="Textarea" readonly> {{element.address}} </textarea>
+                            
+                        </td>
+                </ng-container>
+                
+                <ng-container matColumnDef="nameClient">
+                        <th mat-header-cell *matHeaderCellDef> Client name </th>
+                        <td mat-cell *matCellDef="let element">  
+                            <textarea rows="3" matInput placeholder="Textarea" readonly> {{element.userSystemData.firstName}} {{element.userSystemData.lastName}} </textarea>
+                        </td>
+                </ng-container>
+
+               
+                <ng-container matColumnDef="products">
+                        <th mat-header-cell *matHeaderCellDef> Products </th>
+                        <td mat-cell *matCellDef="let element">  
+                            <div class="flex-container">
+                                <button mat-button (click)="showProduct(item)" *ngFor = "let item of element.products"  >{{item.productInformation.productName}}</button>
+                            </div>
+                        </td>
+                </ng-container>
+
+                <ng-container matColumnDef="priceProducts">
+                        <th mat-header-cell *matHeaderCellDef> Final price </th>
+                        <td mat-cell *matCellDef="let element">  
+                            {{getFinalPrice(element)}}
+                            
+                        </td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef> Status </th>
+                    <td mat-cell *matCellDef="let element">  
+                            {{getStatusPrint(element.orderStatus)}}
+                    </td>
+            </ng-container>
+
+           <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td mat-cell *matCellDef="let element" class="column-action-container"> 
+                    <button mat-button *ngIf="enableChangeOrder" (click)="updateOrder(element)">Update</button>
+                    <button mat-button *ngIf="enableChangeOrder" (click)="deleteOrder(element)">Delete</button>
+                </td>
+            </ng-container>
+
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+           
+
+            </table>
+        
+            <mat-paginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>
+    </div>
+    

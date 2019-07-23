@@ -6,12 +6,12 @@ import { ProductCategory } from 'src/model/entities/apiEntities/productCategory'
 import { MatDialog} from '@angular/material/dialog';
 import { DialogData, ConfirmDialog } from '../../dialog-modules/confirm-dialog/confirm-dialog';
 import { Router } from '@angular/router';
-import { LocalStorageService } from 'src/Services/localstorage.service';
-import { ProductCategoryServerService } from 'src/Services/product-category-server.service';
+import { LocalStorageService } from 'src/services/localstorage.service';
+import { ProductCategoryServerService } from 'src/services/product-category-server.service';
 import { ProductInformation } from 'src/model/entities/apiEntities/productInformation';
 import { MessageDialog } from 'src/Modules/dialog-modules/message-dialog/message-dialog';
-import { ProductInformationServerService } from 'src/Services/product-information-server.service';
-import { ServerErrorsService } from 'src/Services/server-errors.service';
+import { ProductInformationServerService } from 'src/services/product-information-server.service';
+import { ServerErrorsService } from 'src/services/server-errors.service';
 import { CategoryDialogData, CategoryDialog } from 'src/Modules/dialog-modules/category-dialog/category-dialog';
 
 
@@ -24,7 +24,7 @@ export class ProductInformationsComponent implements OnInit {
 
   productInformationMessage:string;
 
-  displayedColumns: string[] = ['idEntity', 'imageLocalSource', 'productName' , 'description', 'categories' ,'actions'];
+  displayedColumns: string[] = ['imageLocalSource', 'productName' , 'description', 'categories' ,'actions'];
   
   dataSource: MatTableDataSource<ProductInformation>;
   

@@ -6,8 +6,7 @@ namespace CommonEntities
 {
 	public class UserOrder : BaseDbEntity
 	{
-
-
+		
 		public string Address { get; set; }
 		public DateTime DateOrder { get; set; }
 		public int UserId { get; set; }

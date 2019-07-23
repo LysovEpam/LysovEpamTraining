@@ -5,25 +5,25 @@ export class OrderStatus {
         this.status = status;
     }
    
-    getStatusPrint(){
+    static getStatusPrint(status:OrderStatusEnum){
 
-        if(this.status == OrderStatusEnum.NewOrder)
+        if(status == OrderStatusEnum.NewOrder)
             return 'New order';
-        if(this.status == OrderStatusEnum.Processed)
+        if(status == OrderStatusEnum.Processed)
             return 'Processed';
-        if(this.status == OrderStatusEnum.Paid)
+        if(status == OrderStatusEnum.Paid)
             return 'Paid';
-        if(this.status == OrderStatusEnum.WaitingForDelivery)
+        if(status == OrderStatusEnum.WaitingForDelivery)
             return 'Waiting for delivery';
-        if(this.status == OrderStatusEnum.Canceled)
+        if(status == OrderStatusEnum.Canceled)
             return 'Canceled';
-        if(this.status == OrderStatusEnum.Fulfilled)
+        if(status == OrderStatusEnum.Fulfilled)
             return 'Fulfilled';
         
         return '';
     }
 
-    static getAllProdcutStatus():OrderStatus[]{
+    static getAllOrderStatus():OrderStatus[]{
 
         let allStatus: OrderStatus[] = [
             new OrderStatus(OrderStatusEnum.NewOrder),

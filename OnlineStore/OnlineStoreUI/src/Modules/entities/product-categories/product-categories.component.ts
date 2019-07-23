@@ -6,9 +6,9 @@ import { ProductCategory } from 'src/model/entities/apiEntities/productCategory'
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import { ConfirmDialog, DialogData } from '../../dialog-modules/confirm-dialog/confirm-dialog';
 import { Router } from '@angular/router';
-import { LocalStorageService } from 'src/Services/localstorage.service';
-import { ProductCategoryServerService } from 'src/Services/product-category-server.service';
-import { ServerErrorsService } from 'src/Services/server-errors.service';
+import { LocalStorageService } from 'src/services/localstorage.service';
+import { ProductCategoryServerService } from 'src/services/product-category-server.service';
+import { ServerErrorsService } from 'src/services/server-errors.service';
 
 
 @Component({
@@ -22,7 +22,7 @@ export class ProductCategoriesComponent implements OnInit {
 
   productCategoriesMessage:string;
 
-  displayedColumns: string[] = ['idEntity', 'categoryName', 'description', 'actions'];
+  displayedColumns: string[] = ['categoryName', 'description', 'actions'];
   
   dataSource: MatTableDataSource<ProductCategory>;
 

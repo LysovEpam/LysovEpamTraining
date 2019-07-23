@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Subscription, identity } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ProductCategory } from 'src/model/entities/apiEntities/productCategory';
-import { LocalStorageService } from 'src/Services/localstorage.service';
-import { ProductCategoryServerService } from 'src/Services/product-category-server.service';
-import { ServerErrorsService } from 'src/Services/server-errors.service';
+import { LocalStorageService } from 'src/services/localstorage.service';
+import { ProductCategoryServerService } from 'src/services/product-category-server.service';
+import { ServerErrorsService } from 'src/services/server-errors.service';
 
 enum typeActionEnum{
   create,

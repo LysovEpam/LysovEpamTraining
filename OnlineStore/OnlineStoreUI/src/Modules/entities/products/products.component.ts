@@ -6,19 +6,21 @@ import { ProductCategory } from 'src/model/entities/apiEntities/productCategory'
 import { MatDialog} from '@angular/material/dialog';
 import { DialogData, ConfirmDialog } from '../../dialog-modules/confirm-dialog/confirm-dialog';
 import { Router } from '@angular/router';
-import { LocalStorageService } from 'src/Services/localstorage.service';
-import { ProductCategoryServerService } from 'src/Services/product-category-server.service';
+import { LocalStorageService } from 'src/services/localstorage.service';
+import { ProductCategoryServerService } from 'src/services/product-category-server.service';
 import { ProductInformation } from 'src/model/entities/apiEntities/productInformation';
 import { MessageDialog } from 'src/Modules/dialog-modules/message-dialog/message-dialog';
-import { ProductInformationServerService } from 'src/Services/product-information-server.service';
-import { ServerErrorsService } from 'src/Services/server-errors.service';
+import { ProductInformationServerService } from 'src/services/product-information-server.service';
+import { ServerErrorsService } from 'src/services/server-errors.service';
 import { Product } from 'src/model/entities/apiEntities/product';
-import { ProductServerService } from 'src/Services/product-server.service';
+import { ProductServerService } from 'src/services/product-server.service';
 import { Subscription, identity } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ProductSearchRequest } from 'src/model/entities/apiRequests/productSearchRequest';
 import { ProductStatus } from 'src/model/entities/apiEntities/additional/productStatus';
 import { CategoryDialogData, CategoryDialog } from 'src/Modules/dialog-modules/category-dialog/category-dialog';
+import { ProductCartDialog } from 'src/Modules/dialog-modules/product-cart/product-cart';
+import { UserRoleEnum, UserRole } from 'src/model/entities/apiEntities/additional/userRole';
 
 enum typeActionEnum{
   changeAll,
@@ -44,7 +46,7 @@ export class ProductsComponent implements OnInit {
 
   productMessage:string;
 
-  displayedColumns: string[] = ['idEntity', 'imageLocalSource', 'productName' , 'productPrice' , 
+  displayedColumns: string[] = ['imageLocalSource', 'productName' , 'productPrice' , 
   'description', 'categories' , 'status' ,'actions'];
   
   dataSource: MatTableDataSource<Product>;
@@ -61,7 +63,7 @@ export class ProductsComponent implements OnInit {
     }
 
     ngOnInit() {
-    
+
       this.dataSource = new MatTableDataSource<Product>();
       this.dataSource.paginator = this.paginator;
 
@@ -72,6 +74,10 @@ export class ProductsComponent implements OnInit {
       this.typeActionEnum = typeActionEnum.undefined;
      
       var paramEntityAction = queryParam['action'];
+
+      let userRoleName: string = this.localStorageService.getUserRole();
+      let role: UserRoleEnum = UserRoleEnum[userRoleName];
+      let userRoleEnum: UserRoleEnum = (<any>UserRoleEnum)[role];
 
       
       
@@ -90,7 +96,17 @@ export class ProductsComponent implements OnInit {
        
         this.typeActionEnum = typeActionEnum.changeAll;
         this.enableChangeProduct = false;
-        this.enableSelectProduct = true;
+
+        if(userRoleEnum == UserRoleEnum.Admin || 
+          userRoleEnum == UserRoleEnum.Editor ||
+          userRoleEnum == UserRoleEnum.User ){
+            this.enableSelectProduct = true;
+          }
+        else{
+          this.enableSelectProduct = false;
+        }
+
+        
         this.enableRemoveProduct = false;
         
         let minCost:number = Number(queryParam['minCost']);
@@ -144,10 +160,9 @@ export class ProductsComponent implements OnInit {
     }
 
     showProductDescription(product: Product){
-      let dialogData: DialogData = new DialogData(product.productInformation.productName, 
-        product.productInformation.description);
-      const dialogRef = this.dialog.open(MessageDialog, {
-        data: dialogData });
+
+      const dialogRef = this.dialog.open(ProductCartDialog, {
+        data: product });
     }
 
     getStatusPrint(productStatus:ProductStatus):string{
