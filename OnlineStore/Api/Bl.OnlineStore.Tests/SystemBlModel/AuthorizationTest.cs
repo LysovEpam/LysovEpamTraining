@@ -1,143 +1,151 @@
-﻿//using BL.OnlineStore.Services.SystemServices;
-//using BL.OnlineStore.Tests.Mocks;
-//using BL.OnlineStore.Tests.Mocks.RepositoryMock;
-//using BLContracts;
-//using CommonEntities.Additional;
-//using DALContracts;
-//using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using BL.OnlineStore.Services;
+using Bl.OnlineStore.Tests.Mocks;
+using BL.OnlineStore.Tests.Mocks;
+using BLContracts;
+using BLContracts.ActionResults;
+using BLContracts.Models;
+using CommonEntities.Additional;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-//namespace Bl.OnlineStore.Tests.SystemBlModel
-//{
-//	[TestClass]
-//	public class AuthorizationTest
-//	{
-//		private static IDbContext _dbContext;
-//		private static IPasswordHash _passwordHash;
+namespace Bl.OnlineStore.Tests.SystemBlModel
+{
+	[TestClass]
+	public class AuthorizationTest
+	{
+		
+		private static AuthorizationService _authorizationService;
+		private static ISessionTokenGenerate _sessionTokenMock;
+		[ClassInitialize]
+		public static void Init(TestContext testContext)
+		{
 
-//		private static AuthorizationService _authorizationService;
+			var passwordHash = new PasswordHashMock();
+			var dbContext = new DbContextMock();
+			_sessionTokenMock = new SessionTokenGenerateMock();
 
-//		[ClassInitialize]
-//		public static void Init(TestContext testContext)
-//		{
-//			//_dbContext = new DbContextMock();
-//			//_passwordHash = new PasswordHashMock();
+			_authorizationService = new AuthorizationService(dbContext, passwordHash, _sessionTokenMock);
+		}
 
-//			//_authorizationBlModel = new AuthorizationBlModel(_dbContext, _passwordHash);
-//		}
+		#region CheckAuthorization --- CorrectParameters
 
-//		#region Check correct status
+		[TestMethod]
+		public void CheckAuthorization_CorrectParameters()
+		{
 
-//		//[TestMethod]
-//		//public void CheckUserStatus_CheckCorrectActiveStatus()
-//		//{
-//		//	string login = "login1";
-//		//	string password = "password1";
+			var request = new AuthorizationRequest()
+			{
+				Login = "admin",
+				Password = "12345678",
+			};
 
-//		//	UserStatus status = _authorizationBlModel.GetUserStatus(login, password);
+			var result = _authorizationService.CheckAuthorization(request);
 
-//		//	Assert.IsTrue(status.Status == UserStatus.StatusEnum.Active);
-//		//}
+			Assert.IsTrue(result.ResultConnection == ServiceResult.ResultConnectionEnum.Correct);
 
-//		//[TestMethod]
-//		//public void CheckUserStatus_CheckCorrectBlockStatus()
-//		//{
-//		//	string login = "login2";
-//		//	string password = "password1";
+		}
 
-//		//	UserStatus status = _authorizationBlModel.GetUserStatus(login, password);
+		#endregion
+		#region CheckAuthorization --- User not found
 
-//		//	Assert.IsTrue(status.Status == UserStatus.StatusEnum.Block);
-//		//}
+		[TestMethod]
+		public void CheckAuthorization_UserNotFound()
+		{
 
-//		//[TestMethod]
-//		//public void CheckUserStatus_CheckCorrectDeleteStatus()
-//		//{
-//		//	string login = "login3";
-//		//	string password = "password1";
+			var request = new AuthorizationRequest()
+			{
+				Login = "testNotExistUser",
+				Password = "notExistPassword",
+			};
 
-//		//	UserStatus status = _authorizationBlModel.GetUserStatus(login, password);
+			var result = _authorizationService.CheckAuthorization(request);
 
-//		//	Assert.IsTrue(status.Status == UserStatus.StatusEnum.Delete);
-//		//}
+			Assert.IsTrue(result.ResultConnection == ServiceResult.ResultConnectionEnum.SystemError &&
+			              result.Message == "User with this login and password not found");
 
-//		#endregion
-//		#region Check uncorrect status
+		}
 
-//		//[TestMethod]
-//		//public void CheckUserStatus_CheckUncorrectLogin()
-//		//{
-//		//	string login = "login";
-//		//	string password = "password1";
+		#endregion
+		#region CheckAuthorization --- User block
 
-//		//	UserStatus status = _authorizationBlModel.GetUserStatus(login, password);
+		[TestMethod]
+		public void CheckAuthorization_UserBlock()
+		{
 
-//		//	Assert.IsTrue(status == null);
-//		//}
+			var request = new AuthorizationRequest()
+			{
+				Login = "userblock",
+				Password = "12345678",
+			};
 
-//		//[TestMethod]
-//		//public void CheckUserStatus_CheckEmptyLogin()
-//		//{
-//		//	string login = "";
-//		//	string password = "password1";
+			var result = _authorizationService.CheckAuthorization(request);
 
-//		//	UserStatus status = _authorizationBlModel.GetUserStatus(login, password);
+			Assert.IsTrue(result.ResultConnection == ServiceResult.ResultConnectionEnum.SystemError &&
+			              result.Message == "The user is blocked");
 
-//		//	Assert.IsTrue(status == null);
-//		//}
+		}
 
-//		#endregion
-//		#region Check generate token
+		#endregion
+		#region CheckAuthorization --- User delete
 
-//		//[TestMethod]
-//		//public void GetAuthorizationToken_CheckActiveUser()
-//		//{
-//		//	string login = "login1";
-//		//	string password = "password1";
+		[TestMethod]
+		public void CheckAuthorization_UserDelete()
+		{
 
-//		//	(UserStatus, string) sessionKey = _authorizationBlModel.GetAuthorizationToken(login, password);
+			var request = new AuthorizationRequest()
+			{
+				Login = "userdelete",
+				Password = "12345678",
+			};
 
-//		//	Assert.IsTrue(sessionKey.Item1.Status == UserStatus.StatusEnum.Active &&
-//		//				  sessionKey.Item2 != null);
-//		//}
+			var result = _authorizationService.CheckAuthorization(request);
 
-//		//[TestMethod]
-//		//public void GetAuthorizationToken_CheckBlockUser()
-//		//{
-//		//	string login = "login2";
-//		//	string password = "password1";
+			Assert.IsTrue(result.ResultConnection == ServiceResult.ResultConnectionEnum.SystemError &&
+			              result.Message == "The user deleted");
 
-//		//	(UserStatus, string) sessionKey = _authorizationBlModel.GetAuthorizationToken(login, password);
+		}
 
-//		//	Assert.IsTrue(sessionKey.Item1.Status == UserStatus.StatusEnum.Block &&
-//		//				  sessionKey.Item2 == null);
-//		//}
-
-//		//[TestMethod]
-//		//public void GetAuthorizationToken_CheckDeleteUser()
-//		//{
-//		//	string login = "login3";
-//		//	string password = "password1";
-
-//		//	(UserStatus, string) sessionKey = _authorizationBlModel.GetAuthorizationToken(login, password);
-
-//		//	Assert.IsTrue(sessionKey.Item1.Status == UserStatus.StatusEnum.Delete &&
-//		//				  sessionKey.Item2 == null);
-//		//}
-
-//		//[TestMethod]
-//		//public void GetAuthorizationToken_CheckUncorrectUser()
-//		//{
-//		//	string login = "login";
-//		//	string password = "password";
-
-//		//	(UserStatus, string) sessionKey = _authorizationBlModel.GetAuthorizationToken(login, password);
-
-//		//	Assert.IsTrue(sessionKey.Item1 == null &&
-//		//				  sessionKey.Item2 == null);
-//		//}
-
-//		#endregion
+		#endregion
 
 
-//	}
-//}
+		#region AuthorizationUser --- AuthorizationAdmin
+
+		[TestMethod]
+		public void Authorization_AuthorizationAdmin()
+		{
+
+			var request = new AuthorizationRequest()
+			{
+				Login = "admin",
+				Password = "12345678",
+			};
+
+			var result = _authorizationService.AuthorizationUser(request);
+
+			Assert.IsTrue(result.userRole.Role == UserRole.RoleEnum.Admin &&
+			              result.sessionToken == _sessionTokenMock.GenerateSessionToken(request.Login));
+
+		}
+
+		#endregion
+		#region AuthorizationUser --- AuthorizationUser
+
+		[TestMethod]
+		public void Authorization_AuthorizationUser()
+		{
+
+			var request = new AuthorizationRequest()
+			{
+				Login = "user",
+				Password = "12345678",
+			};
+
+			var result = _authorizationService.AuthorizationUser(request);
+
+			Assert.IsTrue(result.userRole.Role == UserRole.RoleEnum.User &&
+			              result.sessionToken == _sessionTokenMock.GenerateSessionToken(request.Login));
+
+		}
+
+		#endregion
+	}
+}

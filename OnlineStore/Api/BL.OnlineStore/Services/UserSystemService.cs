@@ -95,6 +95,8 @@ namespace BL.OnlineStore.Services
 		}
 		public ServiceResult CreatByRegistration(SystemUserData userData)
 		{
+			
+
 			#region Check uniq login
 
 			bool loginIsUnique = _dbContext.UserAdmittances.LoginUserIsUnique(userData.Login);
@@ -108,6 +110,7 @@ namespace BL.OnlineStore.Services
 
 			#endregion
 
+			
 			string passwordHash;
 
 			passwordHash = _passwordHash.GeneratePasswordHash(userData.Login, userData.NewPassword);

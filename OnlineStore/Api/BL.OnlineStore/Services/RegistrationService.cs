@@ -17,6 +17,7 @@ namespace BL.OnlineStore.Services
 
 		public ServiceResult CreateNewUser(RegistrationRequest registrationData)
 		{
+			
 			SystemUserData systemUserData = new SystemUserData
 			{
 				Login = registrationData.Login,
@@ -27,8 +28,8 @@ namespace BL.OnlineStore.Services
 				FirstName = registrationData.FirstName,
 				LastName = registrationData.LastName,
 				IdUser =  0,
-				Role = (new UserRole(UserRole.RoleEnum.User)).ToString(),
-				Status = (new UserStatus(UserStatus.StatusEnum.Active)).ToString()
+				Role = (new UserRole(UserRole.RoleEnum.User)).GetRoleName(),
+				Status = (new UserStatus(UserStatus.StatusEnum.Active)).GetStatusName()
 
 			};
 

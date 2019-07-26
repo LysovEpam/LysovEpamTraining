@@ -14,23 +14,23 @@ namespace BL.OnlineStore.Services
 
 		private readonly IDbContext _dbContext;
 		private readonly IPasswordHash _passwordHash;
-		private readonly int _userTokenLength;
+		private readonly ISessionTokenGenerate _sessionTokenGenerator;
+		
 		private readonly TimeSpan _timeKeyWork;
 
-		public AuthorizationService(IDbContext dbContext, IPasswordHash passwordHash)
+		public AuthorizationService(IDbContext dbContext, IPasswordHash passwordHash, ISessionTokenGenerate sessionTokenGenerator)
 		{
 			_dbContext = dbContext;
 			_passwordHash = passwordHash;
+			_sessionTokenGenerator = sessionTokenGenerator;
 
-			_userTokenLength = 50;
+			
 			_timeKeyWork = new TimeSpan(24, 0, 0);
 		}
 
 
 		public ServiceResult CheckAuthorization(AuthorizationRequest authorizationData)
 		{
-
-
 
 			string hash = _passwordHash.GeneratePasswordHash(authorizationData.Login, authorizationData.Password);
 			var userAdmittance = _dbContext.UserAdmittances.GetUserAdmittance(authorizationData.Login, hash);
@@ -65,7 +65,7 @@ namespace BL.OnlineStore.Services
 			string hash = _passwordHash.GeneratePasswordHash(authorizationData.Login, authorizationData.Password);
 			var userSystem = _dbContext.UsersSystem.GetUserByLoginPasswordhash(authorizationData.Login, hash);
 
-			var sessionToken = GenerateSessionToken(authorizationData.Login);
+			var sessionToken = _sessionTokenGenerator.GenerateSessionToken(authorizationData.Login);
 
 			UserAuthorizationToken userToken = new UserAuthorizationToken(DateTime.Now, DateTime.Now.Add(_timeKeyWork),
 				sessionToken, new AuthorizationStatus(AuthorizationStatus.AuthorizationStatusEnum.Active),
@@ -100,25 +100,7 @@ namespace BL.OnlineStore.Services
 
 
 
-		private string GenerateSessionToken(string login)
-		{
-			int random = new Random().Next(10000000, 99999999);
-			var ticks = DateTime.Now.Ticks;
-			string numb = $"{ticks}{random}";
-
-			string loginHash = _passwordHash.GeneratePasswordHash(login, random.ToString());
-
-
-			string result = "";
-
-			for (int i = 0; result.Length < _userTokenLength; i++)
-			{
-				result += loginHash[i];
-				result += numb[i];
-			}
-
-			return result;
-		}
+		
 
 
 

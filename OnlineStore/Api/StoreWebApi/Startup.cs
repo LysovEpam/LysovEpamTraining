@@ -103,6 +103,7 @@ namespace StoreWebApi
 			
 			services.AddTransient<IDbContext>(s => new DbContextCache(Configuration.GetConnectionString("DefaultConnection")));
 			services.AddTransient<IPasswordHash, PasswordHash>();
+			services.AddTransient<ISessionTokenGenerate, SessionTokenGenerate>();
 			services.AddTransient<IRegistrationService, RegistrationService>();
 			services.AddTransient<IAuthorizationService, AuthorizationService>();
 			services.AddTransient<IProductCategoryService, ProductCategoryService>();
