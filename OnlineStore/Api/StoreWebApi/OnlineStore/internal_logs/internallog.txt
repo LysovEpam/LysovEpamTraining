@@ -2101,3 +2101,13 @@
 2019-07-26 13:17:14.1100 Trace  Scanning Property Encoding 'System.Text.UTF8Encoding+UTF8EncodingSealed' System.Text
 2019-07-26 13:17:14.1100 Trace File Target[logfile] has 2 layouts
 2019-07-26 13:17:14.1257 Trace FileTarget(Name=logfile): Using appenderFactory: NLog.Internal.FileAppenders.RetryingMultiProcessFileAppender+Factory
+2019-07-26 13:23:20.5416 Debug Targets for StoreWebApi.Logger.LoggerManager by level:
+2019-07-26 13:23:20.5529 Debug Trace =>
+2019-07-26 13:23:20.5644 Debug Debug => logfile
+2019-07-26 13:23:20.5644 Debug Info => logfile
+2019-07-26 13:23:20.5808 Debug Warn => logfile
+2019-07-26 13:23:20.5808 Debug Error => logfile
+2019-07-26 13:23:20.5808 Debug Fatal => logfile
+2019-07-26 13:23:20.6437 Debug FileTarget(Name=logfile): Process file 'c:/OnlineStore/logs/2019-07-26_logfile.txt' on startup
+2019-07-26 13:23:20.6593 Debug Creating file appender: c:/OnlineStore/logs/2019-07-26_logfile.txt
+2019-07-26 13:23:20.6593 Trace Opening c:/OnlineStore/logs/2019-07-26_logfile.txt with allowFileSharedWriting=False

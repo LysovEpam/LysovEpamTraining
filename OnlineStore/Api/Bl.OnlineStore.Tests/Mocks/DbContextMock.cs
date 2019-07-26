@@ -93,7 +93,7 @@ namespace Bl.OnlineStore.Tests.Mocks
 
 			Mock<IRepositoryUserSystem> userSystemMock = new Mock<IRepositoryUserSystem>();
 
-
+			
 
 			userSystemMock.Setup(action => action.Insert(It.IsAny<UserSystem>())).Returns(1);
 			userSystemMock.Setup(action => action.Update(It.IsAny<UserSystem>())).Returns(true);
@@ -110,12 +110,38 @@ namespace Bl.OnlineStore.Tests.Mocks
 
 				return null;
 			});
+			userSystemMock.Setup(action => action.GetUserByLogin(It.IsAny<string>())).Returns((string login) =>
+			{
+				foreach (var systemUser in listUserSystem)
+				{
+					if (login == systemUser.UserAdmittance.Login)
+						return systemUser;
+
+				}
+
+				return null;
+			});
+
+
 
 			_userSystemRepository = userSystemMock.Object;
 
 			#endregion
 
 			#region UserAuthorizationToken
+
+			var listAuthorizationToken = new List<UserAuthorizationToken>
+			{
+				new UserAuthorizationToken(1, DateTime.Now, DateTime.Now.AddHours(1),
+					$"{listUserSystem[0].UserAdmittance.Login}-token-test", AuthorizationStatus.StatusActive,
+					listUserSystem[0]),
+				new UserAuthorizationToken(2, DateTime.Now, DateTime.Now.AddHours(1),
+					$"{listUserSystem[1].UserAdmittance.Login}-token-test", AuthorizationStatus.StatusActive,
+					listUserSystem[1]),
+				new UserAuthorizationToken(3, DateTime.Now, DateTime.Now.AddHours(1),
+					$"{listUserSystem[2].UserAdmittance.Login}-token-test", AuthorizationStatus.StatusActive,
+					listUserSystem[2]),
+			};
 
 			Mock<IRepositoryUserAuthorizationToken> userAuthorizationTokenMock = new Mock<IRepositoryUserAuthorizationToken>();
 
@@ -127,6 +153,22 @@ namespace Bl.OnlineStore.Tests.Mocks
 			userAuthorizationTokenMock.Setup(action => action.Insert(It.IsAny<UserAuthorizationToken>())).Returns(1);
 			userAuthorizationTokenMock.Setup(action => action.Update(It.IsAny<UserAuthorizationToken>())).Returns(true);
 			userAuthorizationTokenMock.Setup(action => action.Delete(It.IsAny<int>())).Returns(true);
+			userAuthorizationTokenMock.Setup(action => action.GetByToken(It.IsAny<string>())).Returns((string token) =>
+			{
+				foreach (var userToken in listAuthorizationToken)
+				{
+					if (token == userToken.UserToken)
+						return userToken;
+
+				}
+
+				return null;
+			});
+			
+
+
+
+
 
 			_userAuthorizationTokenRepository = userAuthorizationTokenMock.Object;
 
