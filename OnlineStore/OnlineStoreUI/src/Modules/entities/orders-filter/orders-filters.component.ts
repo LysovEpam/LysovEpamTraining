@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { LocalStorageService } from 'src/services/localstorage.service';
 import { Router } from '@angular/router';
-import { ProductCategory } from 'src/model/entities/apiEntities/productCategory';
 import { ProductCategoryServerService } from 'src/services/product-category-server.service';
 import { ServerErrorsService } from 'src/services/server-errors.service';
-import { ProductStatusEnum } from 'src/model/entities/apiEntities/additional/productStatus';
 import { OrderStatus, OrderStatusEnum } from 'src/model/entities/apiEntities/additional/orderStatus';
 
 @Component({
@@ -12,6 +10,7 @@ import { OrderStatus, OrderStatusEnum } from 'src/model/entities/apiEntities/add
   templateUrl: './orders-filters.component.html',
   styleUrls: ['./orders-filters.component.css']
 })
+
 export class OrderFilterComponent implements OnInit {
 
   ordersMessage:string;

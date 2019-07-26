@@ -20,7 +20,7 @@ namespace DAL.OnlineStore.Repositories
 		const string SpUpdate = @"UserAuthorizationToken_Update";
 		const string SpDelete = @"UserAuthorizationToken_Delete";
 		const string SpSelectById = @"UserAuthorizationToken_SelectById";
-		const string SpSelectAll = @"UserAuthorizationToken_SelectById";
+		const string SpSelectAll = @"UserAuthorizationToken_SelectAll";
 
 		#endregion
 
@@ -191,13 +191,17 @@ namespace DAL.OnlineStore.Repositories
 		}
 		public bool Delete(int id)
 		{
+			if (id < 1)
+				throw new Exception($"Exception in {nameof(UserAuthorizationTokenRepository)}-{nameof(Delete)}: id must be more 0");
+
+
 			var idParam = new SqlParameter
 			{
 				ParameterName = "@IdEntity",
 				Value = id
 			};
 
-			//object result = ExecuteCommand(sqlExpression, idParam);
+			
 			var resultCommand = ExecuteCommand(SpDelete, idParam);
 
 			return resultCommand != null && (int)resultCommand == 1;
@@ -324,7 +328,7 @@ namespace DAL.OnlineStore.Repositories
 
 		public int GetCountDependencies(int id)
 		{
-			throw new NotImplementedException();
+			return 0;
 		}
 	}
 }

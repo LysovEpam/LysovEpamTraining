@@ -7,8 +7,6 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import { StoreComponent } from '../Modules/main/store/store.component';
-import { NewsComponent } from '../Modules/main/news/news.component';
-import { SalesComponent } from '../Modules/main/sales/sales.component';
 import { ContactComponent } from '../Modules/main/contact/contact.component';
 import { SingupComponent } from '../Modules/main/singup/singup.component';
 import { SinginComponent } from '../Modules/main/singin/singin.component';
@@ -24,7 +22,6 @@ import { ProductCategoriesComponent } from '../Modules/entities/product-categori
 import { ProductInformationsComponent } from '../Modules/entities/product-informations/product-informations.component';
 import { ProductsComponent } from '../Modules/entities/products/products.component';
 import { OrdersComponent } from '../Modules/entities/orders/orders.component';
-import { TestComponent } from '../Modules/main/test/test.component';
 import { DemoMaterialModule } from 'src/material-module';
 import { ConfirmDialog } from 'src/Modules/dialog-modules/confirm-dialog/confirm-dialog';
 import { MessageDialog } from 'src/Modules/dialog-modules/message-dialog/message-dialog';
@@ -32,12 +29,12 @@ import { CategoryDialog } from 'src/Modules/dialog-modules/category-dialog/categ
 import { ShoppingBasketComponent } from '../Modules/main/shopping-basket/shopping-basket.component';
 import { ProductCartDialog } from 'src/Modules/dialog-modules/product-cart/product-cart';
 import { OrderFilterComponent } from 'src/Modules/entities/orders-filter/orders-filters.component';
+import { UsersComponent } from 'src/Modules/entities/users/users.component';
+import { UserComponent } from 'src/Modules/entities/user/user.component';
 
 
 const appRoutes: Routes = [
   {path:'', component: StoreComponent},
-  {path:'news', component: NewsComponent},
-  {path:'sales', component: SalesComponent},
   {path:'contact', component: ContactComponent},
   {path:'singup', component: SingupComponent},
   {path:'singin', component: SinginComponent},
@@ -54,10 +51,9 @@ const appRoutes: Routes = [
   {path:'products', component: ProductsComponent},
   {path:'order', component: OrderComponent},
   {path:'orders', component: OrdersComponent},
+  {path:'users', component: UsersComponent},
+  {path:'user', component: UserComponent},
     
-
-  {path:'test', component: TestComponent},
-  
   { path: 'store', component: StoreComponent,
       children: [ {path: 'products', component: ProductsComponent }, ]
   },
@@ -78,8 +74,6 @@ const appRoutes: Routes = [
     StoreComponent,
     NotFoundComponent,
     SingupComponent,
-    NewsComponent,
-    SalesComponent,
     ContactComponent,
     SinginComponent,
     UserDashboardComponent,
@@ -93,15 +87,15 @@ const appRoutes: Routes = [
     ProductInformationsComponent,
     ProductsComponent,
     OrdersComponent,
-    TestComponent ,
-    ConfirmDialog,
+    ConfirmDialog, 
     MessageDialog,
     CategoryDialog,
     ShoppingBasketComponent,
     ProductCartDialog,
-    OrderFilterComponent
-
-                  
+    OrderFilterComponent,
+    UsersComponent,
+    UserComponent,
+       
   ],
   entryComponents: [ConfirmDialog, MessageDialog, CategoryDialog, ProductCartDialog],
   imports: [

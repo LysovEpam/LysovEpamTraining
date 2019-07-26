@@ -1,23 +1,23 @@
 <div class="container-main">
-        <div class="container-main-select">
-            <div class = "container-select">
+    <div class="container-main-select">
+        <div class = "container-select">
     
-                {{BasketMessage}}
+            {{BasketMessage}}
 
-                <mat-form-field appearance="legacy" >
-                    <mat-label>Address:</mat-label>
-                    <input matInput placeholder="" [(ngModel)] = "address">
-                </mat-form-field>
+            <mat-form-field appearance="legacy" >
+                <mat-label>Address:</mat-label>
+                <input matInput placeholder="" [(ngModel)] = "address">
+            </mat-form-field>
     
-                <button mat-button (click)="PlaceOrder()">Place an order</button>
+            <button mat-button (click)="PlaceOrder()">Place an order</button>
                 
-            </div>
         </div>
-        <div class="container-main-product">
-            <div class = "container-product-list">
-                <router-outlet></router-outlet>
-            </div>
-        </div>
-    
     </div>
+    <div class="container-main-product">
+        <div class = "container-product-list">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+    
+</div>
     

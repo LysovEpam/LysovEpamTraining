@@ -68,7 +68,6 @@ export class ProductCategoriesComponent implements OnInit {
     let dialogData: DialogData = new DialogData('Delete product category?', 'Confirm the deletion of the product category');
    
     const dialogRef = this.dialog.open(ConfirmDialog, {
-      // width: '350px',
       data: dialogData
     });
 

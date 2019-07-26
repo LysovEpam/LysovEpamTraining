@@ -1,53 +1,54 @@
 <div class="main-outlet-container">
-                <mat-form-field appearance="legacy">
-            <mat-label>Product name:</mat-label>
-            <input matInput placeholder="Enter product name" [(ngModel)] = "productInformation.productName">
-        </mat-form-field>
 
-        <mat-form-field appearance="legacy">
-            <mat-label>Description:</mat-label>
-            <textarea matInput placeholder="Enter product information description" [(ngModel)] = "productInformation.description"></textarea>
-        </mat-form-field>
+    <mat-form-field appearance="legacy">
+        <mat-label>Product name:</mat-label>
+        <input matInput placeholder="Enter product name" [(ngModel)] = "productInformation.productName">
+    </mat-form-field>
 
-        <div class="container-select-category">
-            <div>
-                <mat-form-field >
+    <mat-form-field appearance="legacy">
+        <mat-label>Description:</mat-label>
+        <textarea matInput placeholder="Enter product information description" [(ngModel)] = "productInformation.description"></textarea>
+    </mat-form-field>
 
-                    <mat-label>Select a category</mat-label>
-                    <mat-select [(value)]="selected">                         
-                        <mat-option *ngFor = "let item of allProductCategories" [(value)]="item">{{item.categoryName}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                        
-                <button mat-button (click)="addCategory(selected)">Add category</button>
-    
-            </div>
-
-            <div class="flex-container">
-                <div *ngFor = "let item of productInformation.productCategories">
-
-                    <div class="container-card-item">
-                        <button class="card-item-action" mat-button (click)="showCategory(item)"> show </button>
-                        <button class="card-item-action" mat-button (click)="deleteCategory(item)"> delete </button>
-                        {{item.categoryName}}
-                        
-                    </div>
-
-                </div>
-            </div>
-
-            {{productCategoriesMessage}}
-        </div>
-
+    <div class="container-select-category">
         <div>
-            <input class="input-image-url" matInput placeholder="Enter product image url" [(ngModel)] = "productInformation.imageLocalSource">
-            <img class="image" src={{productInformation.imageLocalSource}} alt="Picture not found">
+            <mat-form-field >
+
+                <mat-label>Select a category</mat-label>
+                <mat-select [(value)]="selected">                         
+                    <mat-option *ngFor = "let item of allProductCategories" [(value)]="item">{{item.categoryName}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+                        
+            <button mat-button (click)="addCategory(selected)">Add category</button>
+    
         </div>
 
-        <button mat-button (click)="productInformationSave(productInformation)">{{buttonSaveText}}</button>
-    
-        {{productInformationMessage}}
+        <div class="flex-container">
+            <div *ngFor = "let item of productInformation.productCategories">
 
+                <div class="container-card-item">
+                    <button class="card-item-action" mat-button (click)="showCategory(item)"> show </button>
+                    <button class="card-item-action" mat-button (click)="deleteCategory(item)"> delete </button>
+                    {{item.categoryName}}
+                        
+                </div>
+
+            </div>
+        </div>
+
+        {{productCategoriesMessage}}
+
+    </div>
+
+    <div>
+        <input class="input-image-url" matInput placeholder="Enter product image url" [(ngModel)] = "productInformation.imageLocalSource">
+        <img class="image" src={{productInformation.imageLocalSource}} alt="Picture not found">
+    </div>
+
+    <button mat-button (click)="productInformationSave(productInformation)">{{buttonSaveText}}</button>
+    
+    {{productInformationMessage}}
 
 
 </div>

@@ -2,21 +2,16 @@ import { OnInit, Component } from '@angular/core';
 import { ViewChild} from '@angular/core';
 import { MatPaginator} from '@angular/material/paginator';
 import { MatTableDataSource} from '@angular/material/table';
-import { ProductCategory } from 'src/model/entities/apiEntities/productCategory';
 import { MatDialog} from '@angular/material/dialog';
 import { DialogData, ConfirmDialog } from '../../dialog-modules/confirm-dialog/confirm-dialog';
 import { Router } from '@angular/router';
 import { LocalStorageService } from 'src/services/localstorage.service';
 import { ServerErrorsService } from 'src/services/server-errors.service';
 import { Product } from 'src/model/entities/apiEntities/product';
-import { ProductServerService } from 'src/services/product-server.service';
-import { Subscription, identity } from 'rxjs';
+import { Subscription} from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { ProductSearchRequest } from 'src/model/entities/apiRequests/productSearchRequest';
-import { ProductStatus } from 'src/model/entities/apiEntities/additional/productStatus';
-import { CategoryDialogData, CategoryDialog } from 'src/Modules/dialog-modules/category-dialog/category-dialog';
 import { ProductCartDialog } from 'src/Modules/dialog-modules/product-cart/product-cart';
-import { UserRoleEnum, UserRole } from 'src/model/entities/apiEntities/additional/userRole';
+import { UserRoleEnum } from 'src/model/entities/apiEntities/additional/userRole';
 import { UserOrder } from 'src/model/entities/apiEntities/userOrder';
 import { OrderServerService } from 'src/services/order-server-service';
 import { OrderSearchRequest } from 'src/model/entities/apiRequests/orderSearchRequest';
@@ -81,8 +76,7 @@ export class OrdersComponent implements OnInit {
       let role: UserRoleEnum = UserRoleEnum[userRoleName];
       let userRoleEnum: UserRoleEnum = (<any>UserRoleEnum)[role];
 
-      
-      
+
       if(paramEntityAction!=null && paramEntityAction == 'changeAll')
       {
 
@@ -149,10 +143,7 @@ export class OrdersComponent implements OnInit {
 
     getStatusPrint(status:OrderStatus){
       return OrderStatus.getStatusPrint(status.status);
-
     }
-
-    
 
     updateOrder(order:UserOrder){
       this.router.navigate(['/order'], {
@@ -163,13 +154,9 @@ export class OrdersComponent implements OnInit {
       });
     }
 
-   
-
     deleteOrder(order:UserOrder){
-      let jwt: string = this.localStorageService.getJwt();
-      // this.orderServer.delete(order.idEntity, jwt);
-
-      let dialogData: DialogData = new DialogData('Delete order category?', 'Confirm the deletion of the order');
+     
+      let dialogData: DialogData = new DialogData('Delete order?', 'Confirm the deletion of the order');
    
       const dialogRef = this.dialog.open(ConfirmDialog, { data: dialogData });
   
@@ -177,10 +164,17 @@ export class OrdersComponent implements OnInit {
         if(result== true)
         {
           let jwt = this.localStorageService.getJwt();
-          this.orderServer.delete(order.idEntity, jwt).subscribe((data:any) =>{
+          this.orderServer.delete(order.idEntity, jwt).subscribe(data =>{
             
             this.ordersMessage = 'Order successfully deleted';
-            this.loadAllOrders();
+
+            const index: number = this.dataSource.data.indexOf(order);
+            if (index !== -1) {
+              let userOrders:UserOrder[] = this.dataSource.data.splice(index, 1);
+              this.dataSource = new MatTableDataSource<UserOrder>(userOrders);
+              this.dataSource.paginator = this.paginator;
+            }
+
           },
           error => { 
             this.ordersMessage = this.serverErrorsService.processError(error);
@@ -188,14 +182,8 @@ export class OrdersComponent implements OnInit {
         }
       });
 
-
-
-
     }
     
-  
-   
-  
     loadAllOrders(){
 
       let jwt: string = this.localStorageService.getJwt();

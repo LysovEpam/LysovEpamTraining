@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BL.OnlineStore.FluentValidation;
 using BLContracts.ActionResults;
 using BLContracts.Services;
 using CommonEntities;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StoreWebApi.AuthorizationModel;
+using StoreWebApi.Logger;
+
 
 namespace StoreWebApi.Controllers
 {
@@ -17,13 +19,16 @@ namespace StoreWebApi.Controllers
 	public class ProductCategoryController : Controller
 	{
 		private readonly IProductCategoryService _productCategoryService;
+		private readonly ILoggerManager _logger;
 
-		public ProductCategoryController(IProductCategoryService categoryService)
+
+		public ProductCategoryController(IProductCategoryService categoryService, ILoggerManager logger)
 		{
 			_productCategoryService = categoryService;
+			_logger = logger;
 		}
 
-		
+
 		#region GetById
 
 		/// <summary>
@@ -33,18 +38,23 @@ namespace StoreWebApi.Controllers
 		/// <returns>Product category</returns>
 		/// <response code="200">Returns the product category</response>
 		/// <response code="404">If the entity does not exist</response>
+		/// <response code="409">If input error</response>
 		/// <response code="500">If a server error occurred while processing the request</response>
 		[HttpGet("{id}")]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(ProductCategory), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
 		public ActionResult GetById(int id)
 		{
 			var blResult = _productCategoryService.GetById(id);
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product category service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			if (blResult.productCategory == null)
 				return StatusCode(StatusCodes.Status404NotFound, "The product category does not exist");
@@ -60,23 +70,30 @@ namespace StoreWebApi.Controllers
 		/// <returns>Product categories</returns>
 		/// <response code="200">Returns list all product categories</response>
 		/// <response code="404">If entities do not exist</response>
+		/// <response code="409">If input error</response>
 		/// <response code="500">If a server error occurred while processing the request</response>
 		[HttpGet]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(IEnumerable<ProductCategory>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
 		public ActionResult GetList()
 		{
+
 			var blResult = _productCategoryService.GetAll();
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product category service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			if (blResult.productCategories != null && blResult.productCategories.Count == 0)
 				return StatusCode(StatusCodes.Status404NotFound, "Product categories do not exist");
 
 			return Ok(blResult.productCategories);
+
 		}
 
 		#endregion
@@ -90,22 +107,27 @@ namespace StoreWebApi.Controllers
 		/// <response code="200">Returns the product category</response>
 		/// <response code="400">If the search string is null</response>
 		/// <response code="404">If the category does not exist</response>
+		/// <response code="409">If input error</response>
 		/// <response code="500">If a server error occurred while processing the request</response>
 		[HttpGet("{searchString}")]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(IEnumerable<ProductCategory>), 200)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
 		public ActionResult Search(string searchString)
 		{
 			if (string.IsNullOrEmpty(searchString))
-				return StatusCode(StatusCodes.Status400BadRequest, "Search string  cannot be empty");
+				return StatusCode(StatusCodes.Status400BadRequest, "Search string cannot be empty");
 
 			var blResult = _productCategoryService.SearchCategory(searchString);
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product category service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			if (blResult.productCategories != null && blResult.productCategories.Count == 0)
 				return StatusCode(StatusCodes.Status404NotFound, "Product categories do not exist");
@@ -141,29 +163,39 @@ namespace StoreWebApi.Controllers
 			if (productCategory == null)
 				return BadRequest("Input request is empty");
 
-			var validator = new ProductCategoryValidator();
-
-			var validationResult = validator.Validate(productCategory);
-
-			if (!validationResult.IsValid)
+			try
 			{
-				string errorMessage = "";
 
-				foreach (var error in validationResult.Errors)
-					errorMessage += error.ErrorMessage + " ";
+				var validator = new ProductCategoryValidator();
 
-				return Conflict(errorMessage);
+				var validationResult = validator.Validate(productCategory);
+
+				if (!validationResult.IsValid)
+				{
+					string errorMessage = "";
+
+					foreach (var error in validationResult.Errors)
+						errorMessage += error.ErrorMessage + " ";
+
+					return Conflict(errorMessage);
+				}
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogError($"Create new category failed. Input data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
 			}
 
-			
+
 			ServiceResult result = _productCategoryService.SaveNewCategory(productCategory);
 
-			if(result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
 				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
 
 			return CreatedAtAction(nameof(GetById), new { id = productCategory.IdEntity }, productCategory);
 
-			
+
 		}
 
 		#endregion
@@ -192,21 +224,30 @@ namespace StoreWebApi.Controllers
 			if (productCategory == null)
 				return BadRequest("Input request is empty");
 
-			var validator = new ProductCategoryValidator();
-			var validationResult = validator.Validate(productCategory);
+			try
+			{ 
+				var validator = new ProductCategoryValidator();
 
-			if (!validationResult.IsValid)
+				var validationResult = validator.Validate(productCategory);
+
+				if (!validationResult.IsValid)
+				{
+					string errorMessage = "";
+
+					foreach (var error in validationResult.Errors)
+						errorMessage += error.ErrorMessage + " ";
+
+					return Conflict(errorMessage);
+				}
+
+			}
+			catch (Exception e)
 			{
-
-				string errorMessage = "";
-
-				foreach (var error in validationResult.Errors)
-					errorMessage += error.ErrorMessage + " ";
-
-				return Conflict(errorMessage);
+				_logger.LogError($"Update category failed. Input data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
 			}
 
-			
+
 			ServiceResult result = _productCategoryService.UpdateCategory(productCategory);
 
 			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
@@ -238,14 +279,17 @@ namespace StoreWebApi.Controllers
 		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
 		public ActionResult Delete(int id)
 		{
-			if(id<1)
+			if (id < 1)
 				return BadRequest("Input request is empty");
 
-			
+
 			ServiceResult result = _productCategoryService.DeleteCategory(id);
 
 			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Delete category failed. Service error message: {result.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+			}
 
 			return Ok();
 		}

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using BLContracts.Models;
 using CommonEntities;
 using CommonEntities.Additional;
 
-namespace BLContracts.ActionResults
+namespace BLContracts.Models
 {
 	public class OrderData
 	{

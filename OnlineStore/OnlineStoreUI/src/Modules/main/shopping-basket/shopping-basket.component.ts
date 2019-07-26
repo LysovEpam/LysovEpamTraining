@@ -1,13 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { LocalStorageService } from 'src/services/localstorage.service';
 import { Router } from '@angular/router';
-import { ProductCategory } from 'src/model/entities/apiEntities/productCategory';
 import { ProductCategoryServerService } from 'src/services/product-category-server.service';
 import { ServerErrorsService } from 'src/services/server-errors.service';
-import { ProductStatusEnum } from 'src/model/entities/apiEntities/additional/productStatus';
 import { OrderServerService } from 'src/services/order-server-service';
 import { OrderRequest } from 'src/model/entities/apiRequests/orderRequest';
-import { OrderStatus, OrderStatusEnum } from 'src/model/entities/apiEntities/additional/orderStatus';
+import { OrderStatusEnum } from 'src/model/entities/apiEntities/additional/orderStatus';
 import { DialogData, ConfirmDialog } from 'src/Modules/dialog-modules/confirm-dialog/confirm-dialog';
 import { MatDialog} from '@angular/material/dialog';
 
@@ -66,12 +64,8 @@ export class ShoppingBasketComponent implements OnInit {
   
     dialogRef.afterClosed().subscribe(result => {
 
-      if(result== true)
-      {
-        //this.BasketMessage = '!!!!!! save order';
+      if(result== true){
         this.saveOrder(orderRequest, jwt);
-          
-
       }
     });
 

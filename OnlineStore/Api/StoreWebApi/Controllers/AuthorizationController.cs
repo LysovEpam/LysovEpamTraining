@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using BL.OnlineStore.FluentValidation;
 using BLContracts.ActionResults;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using StoreWebApi.AuthorizationModel;
+using StoreWebApi.Logger;
 using AuthorizationResult = StoreWebApi.Models.ControllerResults.AuthorizationResult;
 using IAuthorizationService = BLContracts.Services.IAuthorizationService;
 
@@ -20,9 +22,12 @@ namespace StoreWebApi.Controllers
 	{
 
 		private readonly IAuthorizationService _authorizationService;
-		public AuthorizationController(IAuthorizationService authorizationService)
+		private readonly ILoggerManager _logger;
+
+		public AuthorizationController(IAuthorizationService authorizationService, ILoggerManager logger)
 		{
 			_authorizationService = authorizationService;
+			_logger = logger;
 		}
 
 
@@ -34,7 +39,7 @@ namespace StoreWebApi.Controllers
 		/// 
 		///      POST /AuthorizationRequest
 		///      {
-		/// 		"Login": "user",
+		/// 		"Login": "admin",
 		/// 		"Password": "12345678"
 		///      }
 		/// 
@@ -58,11 +63,19 @@ namespace StoreWebApi.Controllers
 			if (authorizationRequest == null)
 				return BadRequest("Empty request");
 
-			var validator = new AuthorizationRequestValidator();
-			var validationResult = validator.Validate(authorizationRequest);
+			try
+			{
+				var validator = new AuthorizationRequestValidator();
+				var validationResult = validator.Validate(authorizationRequest);
 
-			if (!validationResult.IsValid)
-				return Conflict("Invalid input data request");
+				if (!validationResult.IsValid)
+					return BadRequest("Invalid input data request");
+			}
+			catch (Exception e)
+			{
+				_logger.LogError($"Authorization failed. User data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+			}
 
 			#endregion
 			#region Check authorization
@@ -70,7 +83,10 @@ namespace StoreWebApi.Controllers
 			var blResult = _authorizationService.CheckAuthorization(authorizationRequest);
 
 			if (blResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Authorization failed. Authorization service return error: {blResult.Message}");
 				return Conflict(blResult.Message);
+			}
 
 			#endregion
 
@@ -102,7 +118,7 @@ namespace StoreWebApi.Controllers
 			var result = new AuthorizationResult(authorizationRequest.Login, authorizationResult.userRole, jwtToken,
 				authorizationResult.authorizationFinish);
 
-			
+			_logger.LogInfo($"New user authorization (user: {authorizationRequest.Login})");
 			return Ok(result);
 
 

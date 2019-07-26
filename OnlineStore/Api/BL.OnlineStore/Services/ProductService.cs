@@ -152,6 +152,7 @@ namespace BL.OnlineStore.Services
 						bool containCategory = false;
 						foreach (ProductCategory productCategory in product.ProductInformation.ProductCategories)
 						{
+							// ReSharper disable once PossibleInvalidOperationException
 							if (productCategory.IdEntity.Value == idSearchCategory)
 								containCategory = true;
 						}

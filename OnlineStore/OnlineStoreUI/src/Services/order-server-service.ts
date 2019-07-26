@@ -90,7 +90,7 @@ export class OrderServerService {
         headers: headers_object
       };
 
-      return this.http.post(this.apiSettings.getUrlProductCategoryDelete(), id, httpOptions);
+      return this.http.delete(this.apiSettings.getUrlOrderDeleteOrder()+'/' + id, httpOptions); 
 
   }
 

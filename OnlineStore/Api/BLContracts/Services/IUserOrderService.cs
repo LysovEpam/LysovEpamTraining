@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using BLContracts.ActionResults;
 using BLContracts.Models;
-using CommonEntities;
 
 namespace BLContracts.Services
 {
@@ -13,8 +12,8 @@ namespace BLContracts.Services
 		(ServiceResult actionResult, IEnumerable<OrderData> userOrders) GetByUser(string sessionToken);
 		(ServiceResult actionResult, IEnumerable<OrderData> userOrders) GetBySearch(OrderSearchRequest searchRequest);
 
-		ServiceResult SaveOrder(OrderData orderRequest);
-		ServiceResult UpdateOrder(OrderData orderRequest);
+		ServiceResult SaveOrder(OrderRequest orderRequest);
+		ServiceResult UpdateOrder(OrderRequest orderRequest);
 		ServiceResult DeleteOrder(int id);
 
 

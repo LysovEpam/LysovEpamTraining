@@ -10,11 +10,7 @@ namespace StoreWebApi.Models.ControllerResults
 		public string Jwt { get; }
 		public DateTime DateTimeAuthorizationFinish { get; }
 
-		public AuthorizationResult()
-		{
-			
-		}
-
+		
 		public AuthorizationResult(string userLogin, UserRole userRole, string jwt, DateTime dateTimeAuthorizationFinish)
 		{
 			UserLogin = userLogin;

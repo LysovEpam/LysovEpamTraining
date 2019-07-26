@@ -1,31 +1,30 @@
 <div class="container-main">
-        <div class="container-main-select">
-            <div class = "container-select">
+    <div class="container-main-select">
+        <div class = "container-select">
                     
-                <mat-form-field >
-                    <mat-label>Status</mat-label>
-                    <mat-select [(value)]="selectStatus">                          
-                        <mat-option *ngFor = "let status of allStatus" [(value)]="status">{{getOrderStatusPrint(status)}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
+            <mat-form-field >
+                <mat-label>Status</mat-label>
+                <mat-select [(value)]="selectStatus">                          
+                    <mat-option *ngFor = "let status of allStatus" [(value)]="status">{{getOrderStatusPrint(status)}}</mat-option>
+                </mat-select>
+            </mat-form-field>
         
-                <mat-form-field appearance="legacy" >
-                    <mat-label>Search string:</mat-label>
-                    <input  matInput placeholder="Order id, user name, address, email or phone" [(ngModel)] = "searchString">
-                </mat-form-field>
+            <mat-form-field appearance="legacy" >
+                <mat-label>Search string:</mat-label>
+                <input  matInput placeholder="Order id, user name, address, email or phone" [(ngModel)] = "searchString">
+            </mat-form-field>
     
+            {{ordersMessage}}
     
-                {{ordersMessage}}
-    
-                <button mat-button (click)="loadOutletOrders(selectStatus, searchString)">Search orders</button>
+            <button mat-button (click)="loadOutletOrders(selectStatus, searchString)">Search orders</button>
                 
-            </div>
         </div>
-        <div class="container-main-product">
-            <div class = "container-product-list">
-                <router-outlet></router-outlet>
-            </div>
-        </div>
-    
     </div>
+    <div class="container-main-product">
+        <div class = "container-product-list">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+    
+</div>
     

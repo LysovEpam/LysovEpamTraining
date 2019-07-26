@@ -1,10 +1,13 @@
-﻿using BL.OnlineStore.FluentValidation;
+﻿using System;
+using System.Linq;
+using BL.OnlineStore.FluentValidation;
 using BLContracts.ActionResults;
 using BLContracts.Models;
 using BLContracts.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using StoreWebApi.Logger;
 using StoreWebApi.Models.ControllerResults;
 
 namespace StoreWebApi.Controllers
@@ -14,9 +17,12 @@ namespace StoreWebApi.Controllers
 	public class RegistrationController : ControllerBase
 	{
 		private readonly IRegistrationService _registrationService;
-		public RegistrationController(IRegistrationService registrationService)
+		private readonly ILoggerManager _logger;
+
+		public RegistrationController(IRegistrationService registrationService, ILoggerManager logger)
 		{
 			_registrationService = registrationService;
+			_logger = logger;
 		}
 
 		/// <summary>
@@ -52,38 +58,56 @@ namespace StoreWebApi.Controllers
 
 			if (registrationData == null)
 				return BadRequest("Empty request");
-			
-			var validator = new RegistrationRequestValidator();
-			var validationResult = validator.Validate(registrationData);
 
-			if (!validationResult.IsValid)
+			try
 			{
+				var validator = new RegistrationRequestValidator();
+				var validationResult = validator.Validate(registrationData);
+				var validatorPassword = new PasswordValidator();
+				var validatorPasswordResult = validatorPassword.Validate(registrationData.Password);
+
 				var registrationErrors = new RegistrationErrors();
 
-				foreach (var error in validationResult.Errors)
+				if (!validationResult.IsValid)
 				{
-					if (error.PropertyName == nameof(RegistrationRequest.FirstName))
-						registrationErrors.FirstNameError = error.ErrorMessage;
-					if (error.PropertyName == nameof(RegistrationRequest.LastName))
-						registrationErrors.LastNameError = error.ErrorMessage;
-					if (error.PropertyName == nameof(RegistrationRequest.Email))
-						registrationErrors.EmailError = error.ErrorMessage;
-					if (error.PropertyName == nameof(RegistrationRequest.Phone))
-						registrationErrors.PhoneError = error.ErrorMessage;
-					if (error.PropertyName == nameof(RegistrationRequest.Login))
-						registrationErrors.LoginError = error.ErrorMessage;
-					if (error.PropertyName == nameof(RegistrationRequest.Password))
-						registrationErrors.PasswordError = error.ErrorMessage;
+					foreach (var error in validationResult.Errors)
+					{
+						if (error.PropertyName == nameof(RegistrationRequest.FirstName))
+							registrationErrors.FirstNameError = error.ErrorMessage;
+						if (error.PropertyName == nameof(RegistrationRequest.LastName))
+							registrationErrors.LastNameError = error.ErrorMessage;
+						if (error.PropertyName == nameof(RegistrationRequest.Email))
+							registrationErrors.EmailError = error.ErrorMessage;
+						if (error.PropertyName == nameof(RegistrationRequest.Phone))
+							registrationErrors.PhoneError = error.ErrorMessage;
+						if (error.PropertyName == nameof(RegistrationRequest.Login))
+							registrationErrors.LoginError = error.ErrorMessage;
+					}
+
+					return Conflict(registrationErrors);
 				}
 
-				return Conflict(registrationErrors);
+				if (!validatorPasswordResult.IsValid)
+				{
+					registrationErrors.PasswordError = validatorPasswordResult.Errors.FirstOrDefault()?.ErrorMessage;
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError($"Registration failed. User data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
 			}
 
-			
+
+
+			_logger.LogInfo($"New user registration( login:'{registrationData.Login}')");
+
 			var registrationResult = _registrationService.CreateNewUser(registrationData);
 
 			if (registrationResult.ResultConnection == ServiceResult.ResultConnectionEnum.Correct)
 				return Ok();
+
+			_logger.LogError($"Error registration new user, internal server error");
 
 			return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error please try again later");
 

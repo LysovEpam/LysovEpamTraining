@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BL.OnlineStore.FluentValidation;
 using BLContracts.ActionResults;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StoreWebApi.AuthorizationModel;
+using StoreWebApi.Logger;
 
 namespace StoreWebApi.Controllers
 {
@@ -17,10 +19,12 @@ namespace StoreWebApi.Controllers
 	public class OrderController : Controller
 	{
 		private readonly IUserOrderService _userOrderService;
+		private readonly ILoggerManager _logger;
 
-		public OrderController(IUserOrderService userOrderService)
+		public OrderController(IUserOrderService userOrderService, ILoggerManager logger)
 		{
 			_userOrderService = userOrderService;
+			_logger = logger;
 		}
 
 		#region GetById
@@ -31,7 +35,7 @@ namespace StoreWebApi.Controllers
 		/// <param name="id">id order</param>
 		/// <returns>Order</returns>
 		/// <response code="200">Returns the order</response>
-		/// /// <response code="401">If the user is not authorized or there is no permission to delete</response>
+		/// <response code="401">If the user is not authorized or there is no permission to delete</response>
 		/// <response code="403">If the user does not have access</response>
 		/// <response code="404">If the entity does not exist</response>
 		/// <response code="500">If a server error occurred while processing the request</response>
@@ -52,7 +56,10 @@ namespace StoreWebApi.Controllers
 			var blResult = _userOrderService.GetById(id, sessionToken);
 
 			if (blResult.userOrder == null)
-				return StatusCode(StatusCodes.Status404NotFound, "The order does not exist");
+			{
+				_logger.LogError($"Order information service error: {blResult.actionResult.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			return Ok(blResult.userOrder);
 		}
@@ -65,7 +72,7 @@ namespace StoreWebApi.Controllers
 		/// </summary>
 		/// <returns>Order</returns>
 		/// <response code="200">Returns the order</response>
-		/// /// <response code="401">If the user is not authorized or there is no permission to delete</response>
+		/// <response code="401">If the user is not authorized or there is no permission to delete</response>
 		/// <response code="403">If the user does not have access</response>
 		/// <response code="404">If the entity does not exist</response>
 		/// <response code="500">If a server error occurred while processing the request</response>
@@ -83,7 +90,10 @@ namespace StoreWebApi.Controllers
 			var blResult = _userOrderService.GetAll();
 
 			if (blResult.userOrders == null)
-				return StatusCode(StatusCodes.Status404NotFound, "The order does not exist");
+			{
+				_logger.LogError($"Order information service error: {blResult.actionResult.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			return Ok(blResult.userOrders);
 		}
@@ -111,7 +121,7 @@ namespace StoreWebApi.Controllers
 		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
 		public ActionResult GetByUser()
 		{
-			
+
 			var claims = HttpContext.User.Claims.ToList();
 			string sessionToken = claims.FirstOrDefault(c => c.Type == AuthorizationDataModel.ClaimSessionToken)?.Value;
 
@@ -123,8 +133,10 @@ namespace StoreWebApi.Controllers
 				return NotFound("Orders not exist");
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Order information service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
-
+			}
 			return Ok(blResult.userOrders);
 		}
 
@@ -153,24 +165,32 @@ namespace StoreWebApi.Controllers
 			if (searchRequest == null)
 				return StatusCode(StatusCodes.Status400BadRequest, "Search request cannot be empty");
 
-			var dataRequestValidator = new OrderSearchRequestValidator();
-
-			var validationResult = dataRequestValidator.Validate(searchRequest);
-
-			if (!validationResult.IsValid)
+			try
 			{
-				string errorMessage = "";
 
-				foreach (var error in validationResult.Errors)
-					errorMessage += error.ErrorMessage + " ";
+				var dataRequestValidator = new OrderSearchRequestValidator();
+				var validationResult = dataRequestValidator.Validate(searchRequest);
 
-				return Conflict(errorMessage);
+				if (!validationResult.IsValid)
+				{
+					string errorMessage = "";
+
+					foreach (var error in validationResult.Errors)
+						errorMessage += error.ErrorMessage + " ";
+
+					return Conflict(errorMessage);
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError($"Search orders. Input data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
 			}
 
 			var blResult = _userOrderService.GetBySearch(searchRequest);
 
 			if (blResult.actionResult.ResultConnection == ServiceResult.ResultConnectionEnum.Correct &&
-			    blResult.userOrders == null)
+				blResult.userOrders == null)
 				return NotFound("Orders not exist");
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
@@ -201,27 +221,41 @@ namespace StoreWebApi.Controllers
 		[ProducesResponseType(StatusCodes.Status403Forbidden)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-		public ActionResult Create([FromBody]OrderData orderData)
+		public ActionResult Create([FromBody]OrderRequest orderData)
 		{
 			if (orderData == null)
 				return BadRequest("Input request is empty");
 
-			var dataRequestValidator = new OrderRequestValidator();
+			#region validate data
 
-			var validationResult = dataRequestValidator.Validate(orderData);
-
-			if (!validationResult.IsValid)
+			try
 			{
-				string errorMessage = "";
+				var dataRequestValidator = new OrderRequestValidator();
 
-				foreach (var error in validationResult.Errors)
-					errorMessage += error.ErrorMessage + " ";
+				var validationResult = dataRequestValidator.Validate(orderData);
 
-				return Conflict(errorMessage);
+				if (!validationResult.IsValid)
+				{
+					string errorMessage = "";
+
+					foreach (var error in validationResult.Errors)
+						errorMessage += error.ErrorMessage + " ";
+
+					return Conflict(errorMessage);
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError($"Create new orders. Input data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
 			}
 
-			
-			ServiceResult result = _userOrderService.SaveOrder( orderData);
+			#endregion
+
+
+
+
+			ServiceResult result = _userOrderService.SaveOrder(orderData);
 
 			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
 				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
@@ -233,12 +267,99 @@ namespace StoreWebApi.Controllers
 		#endregion
 		#region UpdateOrder
 
+		/// <summary>
+		/// Update a order
+		/// </summary>
+		/// <param name="orderData">Order request</param>
+		/// <returns>Order update result</returns>
+		/// <response code="200">Server return results</response>
+		/// <response code="400">If the item is null</response>
+		/// <response code="401">If the user is not authorized or there is no permission to add</response>
+		/// <response code="403">If the user does not have access</response>
+		/// <response code="409">If input error</response>
+		/// <response code="500">If a server error occurred while processing the request</response>
+		[HttpPost]
+		[Authorize(Roles = AuthorizationDataModel.RoleAdmin)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+		public ActionResult UpdateOrder([FromBody]OrderRequest orderData)
+		{
+			if (orderData == null)
+				return BadRequest("Input request is empty");
 
+			#region validate data
+
+			try
+			{
+
+				var dataRequestValidator = new OrderRequestValidator();
+
+				var validationResult = dataRequestValidator.Validate(orderData);
+
+				if (!validationResult.IsValid)
+				{
+					string errorMessage = "";
+
+					foreach (var error in validationResult.Errors)
+						errorMessage += error.ErrorMessage + " ";
+
+					return Conflict(errorMessage);
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError($"Update orders. Input data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+			}
+
+			#endregion
+
+			ServiceResult result = _userOrderService.UpdateOrder(orderData);
+
+			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+
+			return StatusCode(StatusCodes.Status201Created);
+
+		}
 
 		#endregion
 		#region DeleteOrder
 
+		/// <summary>
+		/// Delete a order
+		/// </summary>
+		/// <param name="id">Idorder</param>        
+		/// <returns>Category delete result</returns>
+		/// <response code="200">Delete success</response>
+		/// <response code="400">If the item is null</response>
+		/// <response code="401">If the user is not authorized or there is no permission to delete</response>
+		/// <response code="403">If the user does not have access</response>
+		/// <response code="500">If a server error occurred while processing the request</response>
+		[HttpDelete("{id}")]
+		[Authorize(Roles = AuthorizationDataModel.RoleEditorAndAdmin)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+		public ActionResult DeleteOrder(int id)
+		{
+			if (id < 1)
+				return BadRequest("Input request is empty");
 
+
+			ServiceResult result = _userOrderService.DeleteOrder(id);
+
+			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+
+			return Ok();
+		}
 
 		#endregion
 

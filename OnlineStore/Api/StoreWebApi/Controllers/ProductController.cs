@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BL.OnlineStore.FluentValidation;
 using BLContracts.ActionResults;
 using BLContracts.Models;
 using BLContracts.Services;
 using CommonEntities;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StoreWebApi.AuthorizationModel;
+using StoreWebApi.Logger;
 
 namespace StoreWebApi.Controllers
 {
@@ -18,10 +19,12 @@ namespace StoreWebApi.Controllers
 	public class ProductController : Controller
 	{
 		private readonly IProductService _productService;
+		private readonly ILoggerManager _logger;
 
-		public ProductController(IProductService productService)
+		public ProductController(IProductService productService, ILoggerManager logger)
 		{
 			_productService = productService;
+			_logger = logger;
 		}
 
 
@@ -45,7 +48,10 @@ namespace StoreWebApi.Controllers
 			var blResult = _productService.GetById(id);
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			if (blResult.product == null)
 				return StatusCode(StatusCodes.Status404NotFound, "The product does not exist");
@@ -74,7 +80,10 @@ namespace StoreWebApi.Controllers
 			var blResult = _productService.GetAll();
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			if (blResult.products != null && !blResult.products.Any())
 				return StatusCode(StatusCodes.Status404NotFound, "Product do not exist");
@@ -92,8 +101,7 @@ namespace StoreWebApi.Controllers
 		/// <param name="searchRequest">search request</param>
 		/// <returns>products</returns>
 		/// <response code="200">Returns the products</response>
-		/// <response code="400">If the search string is null</response>
-		/// <response code="404">If the products does not exist</response>
+		/// <response code="400">If the search request is null</response>
 		/// <response code="500">If a server error occurred while processing the request</response>
 		[HttpPost]
 		[AllowAnonymous]
@@ -101,18 +109,42 @@ namespace StoreWebApi.Controllers
 		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-		public ActionResult Search(ProductSearchRequest searchRequest)
+		public ActionResult Search([FromBody]ProductSearchRequest searchRequest)
 		{
 			if (searchRequest == null)
 				return StatusCode(StatusCodes.Status400BadRequest, "Search request cannot be empty");
 
+			try
+			{
+				var validator = new ProductSearchRequestValidator();
+
+				var validationResult = validator.Validate(searchRequest);
+
+				if (!validationResult.IsValid)
+				{
+					string errorMessage = "";
+
+					foreach (var error in validationResult.Errors)
+						errorMessage += error.ErrorMessage + " ";
+
+					return Conflict(errorMessage);
+				}
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogError($"Search products failed. Input data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+			}
+
 			var blResult = _productService.Search(searchRequest);
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
-			if (blResult.products != null && !blResult.products.Any())
-				return StatusCode(StatusCodes.Status404NotFound, "Product do not exist");
 
 			return Ok(blResult.products);
 
@@ -144,7 +176,10 @@ namespace StoreWebApi.Controllers
 			var blResult = _productService.GetByIdList(idProducts);
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			if (blResult.products == null)
 				return StatusCode(StatusCodes.Status404NotFound, "Product do not exist");
@@ -154,8 +189,6 @@ namespace StoreWebApi.Controllers
 		}
 
 		#endregion
-
-		
 		#region Create
 
 		/// <summary>
@@ -182,25 +215,34 @@ namespace StoreWebApi.Controllers
 			if (productData == null)
 				return BadRequest("Input request is empty");
 
-			var dataRequestValidator = new ProductDataRequestValidator();
-
-			var validationResult = dataRequestValidator.Validate(productData);
-
-			if (!validationResult.IsValid)
+			try
 			{
-				string errorMessage = "";
+				var dataRequestValidator = new ProductDataRequestValidator();
+				var validationResult = dataRequestValidator.Validate(productData);
 
-				foreach (var error in validationResult.Errors)
-					errorMessage += error.ErrorMessage + " ";
+				if (!validationResult.IsValid)
+				{
+					string errorMessage = "";
 
-				return Conflict(errorMessage);
+					foreach (var error in validationResult.Errors)
+						errorMessage += error.ErrorMessage + " ";
+
+					return Conflict(errorMessage);
+				}
 			}
-			
-			
+			catch (Exception e)
+			{
+				_logger.LogError($"Create new product failed. Input data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+			}
+
 			ServiceResult result = _productService.SaveNewProduct(productData);
 
 			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product service error: {result.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+			}
 
 			return StatusCode(StatusCodes.Status201Created);
 
@@ -232,28 +274,36 @@ namespace StoreWebApi.Controllers
 			if (productData == null)
 				return BadRequest("Input request is empty");
 
-
-			var dataRequestValidator = new ProductDataRequestValidator();
-
-			var validationResult = dataRequestValidator.Validate(productData);
-
-
-			if (!validationResult.IsValid)
+			try
 			{
 
-				string errorMessage = "";
+				var dataRequestValidator = new ProductDataRequestValidator();
+				var validationResult = dataRequestValidator.Validate(productData);
 
-				foreach (var error in validationResult.Errors)
-					errorMessage += error.ErrorMessage + " ";
+				if (!validationResult.IsValid)
+				{
 
-				return Conflict(errorMessage);
+					string errorMessage = "";
+
+					foreach (var error in validationResult.Errors)
+						errorMessage += error.ErrorMessage + " ";
+
+					return Conflict(errorMessage);
+				}
 			}
-
+			catch (Exception e)
+			{
+				_logger.LogError($"Update product failed. Input data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+			}
 
 			ServiceResult result = _productService.UpdateProduct(productData);
 
 			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product service error: {result.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+			}
 
 			return Ok();
 
@@ -284,11 +334,14 @@ namespace StoreWebApi.Controllers
 			if (id < 1)
 				return BadRequest("Input request is empty");
 
-			
+
 			ServiceResult result = _productService.DeleteProduct(id);
 
 			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product service error: {result.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+			}
 
 			return Ok();
 

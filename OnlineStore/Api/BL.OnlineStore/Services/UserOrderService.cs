@@ -53,7 +53,10 @@ namespace BL.OnlineStore.Services
 			ServiceResult actionResult;
 
 			if (list == null)
-				actionResult = new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError, "");
+			{
+				ServiceResult actionResultError = new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError, "");
+				return (actionResultError, null);
+			}
 			else
 			{
 				actionResult = new ServiceResult(ServiceResult.ResultConnectionEnum.Correct, "");
@@ -71,7 +74,7 @@ namespace BL.OnlineStore.Services
 				listResult.Add(orderData);
 			}
 
-
+			listResult.Reverse();
 			return (actionResult, listResult);
 		}
 
@@ -99,7 +102,7 @@ namespace BL.OnlineStore.Services
 				listResult.Add(orderData);
 			}
 
-
+			listResult.Reverse();
 			return (actionResult, listResult);
 		}
 
@@ -117,7 +120,7 @@ namespace BL.OnlineStore.Services
 				if (order.OrderStatus.Status != orderStatus.Status)
 					continue;
 
-				if (order.IdEntity.Value.ToString().Contains(searchString) ||
+				if (order.IdEntity.HasValue && order.IdEntity.Value.ToString().Contains(searchString) ||
 					order.Address.ToLower().Contains(searchString) ||
 				    order.UserSystem.FirsName.ToLower().Contains(searchRequest.SearchString.ToLower()) ||
 				    order.UserSystem.LastName.ToLower().Contains(searchRequest.SearchString.ToLower()) ||
@@ -131,19 +134,19 @@ namespace BL.OnlineStore.Services
 				}
 
 			}
-
+			ordersResult.Reverse();
 			ServiceResult serviceResult = new ServiceResult(ServiceResult.ResultConnectionEnum.Correct, "");
 			return (serviceResult, ordersResult);
 
 		}
 
-		public ServiceResult SaveOrder(OrderData orderRequest)
+		public ServiceResult SaveOrder(OrderRequest orderRequest)
 		{
 			var products = new List<Product>();
 
-			foreach (var productInList in orderRequest.Products)
+			foreach (var productInList in orderRequest.IdProducts)
 			{
-				var product = _dbContext.Products.SelectById(productInList.IdEntity.Value);
+				var product = _dbContext.Products.SelectById(productInList);
 				if (product == null)
 				{
 					products = null;
@@ -166,11 +169,12 @@ namespace BL.OnlineStore.Services
 					"Unable to place an order. Some or all products are currently unavailable.");
 			}
 
-			var user = _dbContext.UsersSystem.GetUserByLogin(orderRequest.UserSystemData.Login);
+			var user = _dbContext.UsersSystem.GetUserByLogin(orderRequest.UserLogin);
 
 			string orderStatus = new OrderStatus(OrderStatus.OrderStatusEnum.NewOrder).GetStatusName();
 			DateTime dateOrder = DateTime.Now;
 
+			// ReSharper disable once PossibleInvalidOperationException
 			UserOrder userOrder = new UserOrder(dateOrder, orderRequest.Address, orderStatus, user.IdEntity.Value, products);
 
 			var saveResult = _dbContext.UserOrders.Insert(userOrder);
@@ -185,31 +189,31 @@ namespace BL.OnlineStore.Services
 
 		}
 
-		public ServiceResult UpdateOrder(OrderData orderRequest)
+		public ServiceResult UpdateOrder(OrderRequest orderRequest)
 		{
 			var products = new List<Product>();
 
-			foreach (var idProduct in orderRequest.Products)
+			foreach (var idProduct in orderRequest.IdProducts)
 			{
-				var product = _dbContext.Products.SelectById(idProduct.IdEntity.Value);
+				var product = _dbContext.Products.SelectById(idProduct);
 				if (product == null)
-				{
-					products = null;
 					break;
-				}
+				
+				products.Add(product);
 			}
 
-			if (products == null || products.Count == 0)
+			if (products.Count == 0)
 			{
 				return new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError,
 					"Could not change order. Error getting information about products.");
 			}
 
-			var oldOrder = _dbContext.UserOrders.SelectById(orderRequest.UserSystemData.IdUser);
+			var oldOrder = _dbContext.UserOrders.SelectById(orderRequest.IdOrder);
 
-			string orderStatus = new OrderStatus(OrderStatus.OrderStatusEnum.NewOrder).GetStatusName();
+			string orderStatus = new OrderStatus(orderRequest.Status).GetStatusName();
 
-			UserOrder userOrder = new UserOrder(oldOrder.DateOrder, orderRequest.Address, orderStatus, oldOrder.UserId, products);
+			
+			UserOrder userOrder = new UserOrder(oldOrder.IdEntity.Value, oldOrder.DateOrder, orderRequest.Address, orderStatus, oldOrder.UserSystem.IdEntity.Value, products);
 
 			var saveResult = _dbContext.UserOrders.Update(userOrder);
 
@@ -252,6 +256,7 @@ namespace BL.OnlineStore.Services
 
 			OrderData orderData = new OrderData
 			{
+				// ReSharper disable once PossibleInvalidOperationException
 				IdEntity = order.IdEntity.Value,
 				DateOrder = order.DateOrder,
 				Address = order.Address,

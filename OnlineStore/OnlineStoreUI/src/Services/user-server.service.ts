@@ -11,30 +11,74 @@ export class UserServerService {
 
     constructor(private http: HttpClient, private apiSettings:ApiSettingsService){ }
       
-    
+    getAll(jwt:string){
 
-    getByMyself(jwt:string){
+      var headers_object = new HttpHeaders().set("Authorization", "Bearer " + jwt);
 
-        var headers_object = new HttpHeaders().set("Authorization", "Bearer " + jwt);
+      const httpOptions = {
+        headers: headers_object
+      };
 
-        const httpOptions = {
-          headers: headers_object
-        };
-
-        return this.http.post(this.apiSettings.getUrlUserGetByMyself(), '', httpOptions);
+      return this.http.post(this.apiSettings.getUrlUserGetAll(), '', httpOptions);
     }
 
-    updateByMyself(data: SystemUserData, jwt:string){
+    getById(id:number, jwt:string){
 
-        var headers_object = new HttpHeaders().set("Authorization", "Bearer " + jwt);
+      var headers_object = new HttpHeaders().set("Authorization", "Bearer " + jwt);
 
-        const httpOptions = {
-          headers: headers_object
-        };
+      const httpOptions = {
+        headers: headers_object
+      };
 
-        return this.http.post(this.apiSettings.getUrlUserUpdateByMyself(), data, httpOptions);
+      return this.http.post(this.apiSettings.getUrlUserGetById(), id, httpOptions);
+    }
+
+    getByToken(jwt:string){
+
+      var headers_object = new HttpHeaders().set("Authorization", "Bearer " + jwt);
+
+      const httpOptions = {
+        headers: headers_object
+      };
+
+      return this.http.post(this.apiSettings.getUrlUserGetByToken(), '', httpOptions);
+    }
+
+    create(userData: SystemUserData, jwt:string){
+
+      var headers_object = new HttpHeaders().set("Authorization", "Bearer " + jwt);
+
+      const httpOptions = {
+        headers: headers_object
+      };
+
+      return this.http.post(this.apiSettings.getUrlUserCreate(), userData, httpOptions);
 
     }
+
+    update(userData: SystemUserData, jwt:string){
+
+      var headers_object = new HttpHeaders().set("Authorization", "Bearer " + jwt);
+
+      const httpOptions = {
+        headers: headers_object
+      };
+
+      return this.http.post(this.apiSettings.getUrlUserUpdate(), userData, httpOptions);
+
+    }
+
+    delete(id: number, jwt:string){
+
+      var headers_object = new HttpHeaders().set("Authorization", "Bearer " + jwt);
+
+      const httpOptions = {
+        headers: headers_object
+      };
+
+      return this.http.delete(this.apiSettings.getUrlUserDelete()+'/' + id, httpOptions); 
+    }
+
 
     
 }

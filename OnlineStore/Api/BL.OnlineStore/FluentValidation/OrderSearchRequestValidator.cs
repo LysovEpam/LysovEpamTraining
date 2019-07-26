@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BLContracts.Models;
+﻿using BLContracts.Models;
 using CommonEntities.Additional;
 using FluentValidation;
 
@@ -12,10 +9,10 @@ namespace BL.OnlineStore.FluentValidation
 		public OrderSearchRequestValidator()
 		{
 			RuleFor(request => request.Status)
-				.Must(CheckStatus).WithMessage("Status must not be empty");
+				.Must(CheckStatus).WithMessage("Status must not be empty. ");
 
 			RuleFor(request => request.SearchString)
-				.NotNull().WithMessage("Search string must not be empty");
+				.NotNull().WithMessage("Search string must not be empty. ");
 
 		}
 
@@ -23,7 +20,7 @@ namespace BL.OnlineStore.FluentValidation
 		{
 			try
 			{
-				OrderStatus orderStatus = new OrderStatus(statusName);
+				OrderStatus unused = new OrderStatus(statusName);
 				return true;
 			}
 			catch

@@ -1,0 +1,63 @@
+<div class="main-container">
+    
+    <mat-form-field appearance="legacy">
+        <mat-label>First name:</mat-label>
+        <input matInput placeholder="Enter first name" [(ngModel)] = "systemUser.firstName">
+    </mat-form-field>
+
+    <mat-form-field appearance="legacy">
+        <mat-label>Last name:</mat-label>
+        <input matInput placeholder="Enter last name" [(ngModel)] = "systemUser.lastName">
+    </mat-form-field>
+
+    <mat-form-field appearance="legacy">
+        <mat-label>Email:</mat-label>
+        <input matInput placeholder="Enter email" [(ngModel)] = "systemUser.email">
+    </mat-form-field>
+
+    <mat-form-field appearance="legacy">
+        <mat-label>Phone:</mat-label>
+        <input matInput placeholder="Enter phone" [(ngModel)] = "systemUser.phone">
+    </mat-form-field>
+
+    
+    <mat-form-field appearance="legacy">
+        <mat-label>User status:</mat-label>
+        <mat-select [(value)]="systemUser.status" [disabled]="!changeStatusRoleIsEnable"> 
+            <mat-option *ngFor = "let item of allStatus" [(value)]="item">{{item}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="legacy">
+        <mat-label>User role:</mat-label>
+        <mat-select [(value)]="systemUser.role" [disabled]="!changeStatusRoleIsEnable"> 
+            <mat-option *ngFor = "let item of allRoles" [(value)]="item">{{item}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="legacy">
+        <mat-label>Login:</mat-label>
+        <input matInput placeholder="Enter login" [(ngModel)] = "systemUser.login" [disabled]="!changeLoginIsEnable"> 
+    </mat-form-field>
+
+    <mat-form-field>
+        <input matInput placeholder="Enter your password" [type]="!hide ? 'password' : 'text'" [(ngModel)] = "systemUser.oldPassword">
+        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="!hide">
+            <mat-icon>{{!hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+    </mat-form-field>
+
+    <mat-form-field>
+        <input matInput placeholder="Enter new password" [type]="!hide ? 'password' : 'text'" [(ngModel)] = "systemUser.newPassword" [disabled]="!changePasswordIsEnable"> 
+    </mat-form-field>
+
+    <mat-form-field>
+        <input matInput placeholder="Confirm new password" [type]="!hide ? 'password' : 'text'" [(ngModel)] = "confirmnewPassword" [disabled]="!changePasswordIsEnable"> 
+    </mat-form-field>
+
+    <button mat-button (click)="saveUser()">{{buttonSaveText}}</button>
+
+    {{userMessage}}
+
+</div>
+    

@@ -7,7 +7,7 @@ import { ProductCategory } from 'src/model/entities/apiEntities/productCategory'
 import { ProductInformation } from 'src/model/entities/apiEntities/productInformation';
 import { DialogData } from 'src/Modules/dialog-modules/confirm-dialog/confirm-dialog';
 import { MessageDialog } from 'src/Modules/dialog-modules/message-dialog/message-dialog';
-import {MatDialog } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { ProductInformationServerService } from 'src/services/product-information-server.service';
 import { ServerErrorsService } from 'src/services/server-errors.service';
 import { CategoryDialogData } from 'src/Modules/dialog-modules/category-dialog/category-dialog';
@@ -18,6 +18,9 @@ import { UserOrder } from 'src/model/entities/apiEntities/userOrder';
 import { OrderServerService } from 'src/services/order-server-service';
 import { UserRoleEnum } from 'src/model/entities/apiEntities/additional/userRole';
 import { OrderStatus, OrderStatusEnum } from 'src/model/entities/apiEntities/additional/orderStatus';
+import { ProductCartDialog } from 'src/Modules/dialog-modules/product-cart/product-cart';
+import { SystemUserData } from 'src/model/entities/apiEntities/systemUserData';
+import { OrderRequest } from 'src/model/entities/apiRequests/orderRequest';
 
 enum typeActionEnum{
   show,
@@ -38,12 +41,10 @@ export class OrderComponent implements OnInit {
 
   buttonSaveText:string;
   orderMessage: string;
-  //ProductMessage:string;
-
-  allProducts: Product[];
+  
   orderInformation: UserOrder;
-
-
+  allOrderStatus:OrderStatus[];
+  
   constructor(activateRoute: ActivatedRoute, private localStorageService: LocalStorageService, public dialog: MatDialog,
     private orderServer: OrderServerService, private productServer: ProductServerService,
     private serverErrorsService:ServerErrorsService) { 
@@ -53,11 +54,15 @@ export class OrderComponent implements OnInit {
 
   ngOnInit() {
 
-    //this.loadProductCategories();
-    this.orderInformation = new UserOrder(0, new Date(Date.now()), '', [], new OrderStatus(OrderStatusEnum.NewOrder), null);
-    //this.orderInformation.products = [];
+    this.orderInformation = new UserOrder(0, new Date(Date.now()), '', [], 
+    new OrderStatus(OrderStatusEnum.NewOrder), 
+    new SystemUserData(0,'','', '', '', '', '', '', '', ''));
 
+    this.allOrderStatus = OrderStatus.getAllOrderStatus();
+   
   }
+
+
 
   addProduct(product: Product){
 
@@ -78,22 +83,24 @@ export class OrderComponent implements OnInit {
   }
 
   showProduct(product: Product){
-
-
-    // let dialogData: CategoryDialogData = new CategoryDialogData(productCategory.categoryName, productCategory.description, productCategory.idEntity);
-    // const dialogRef = this.dialog.open(CategoryDialog, {
-    //   data: dialogData });
-
+     const dialogRef = this.dialog.open(ProductCartDialog, {
+      data: product });
   }
 
   deleteProduct(product: Product){
 
-    // const index: number = this.productInformation.productCategories.indexOf(productCategory);
-    // if (index !== -1) {
-    //   this.productInformation.productCategories.splice(index, 1);
-    //   this.ProductMessage = 'Category has been deleted';
-    // }
+    const index: number = this.orderInformation.products.indexOf(product);
+    if (index !== -1) {
+      this.orderInformation.products.splice(index, 1);
+      this.orderMessage = 'Product has been deleted';
+    }
   }
+
+  getStatusPrint(status:OrderStatus){
+    return OrderStatus.getStatusPrint(status.status);
+  }
+
+ 
 
   processingQueryParam(queryParam: any){
 
@@ -121,7 +128,14 @@ export class OrderComponent implements OnInit {
          let jwt: string = this.localStorageService.getJwt();
  
          this.orderServer.getById(idEntity, jwt).subscribe((data: UserOrder) =>{
-           this.orderInformation = data; },
+          this.orderInformation = data; 
+          
+          this.allOrderStatus.forEach(element => {
+            if(element.status == data.orderStatus.status){
+              this.orderInformation.orderStatus = element;
+            }
+          });
+          },
            error => { 
              this.orderMessage = this.serverErrorsService.processError(error);
            } );
@@ -150,7 +164,15 @@ export class OrderComponent implements OnInit {
         let jwt: string = this.localStorageService.getJwt();
 
         this.orderServer.getById(idEntity, jwt).subscribe((data: UserOrder) =>{
-          this.orderInformation = data; },
+          this.orderInformation = data; 
+          
+          this.allOrderStatus.forEach(element => {
+            if(element.status == data.orderStatus.status){
+              this.orderInformation.orderStatus = element;
+            }
+          });
+
+        },
           error => { 
             this.orderMessage = this.serverErrorsService.processError(error);
           } );
@@ -163,47 +185,27 @@ export class OrderComponent implements OnInit {
     }
   }
 
-  loadProductCategories(){
+  orderSave(){
+    let jwt: string = this.localStorageService.getJwt();
 
-    this.productServer.getList().subscribe((data: Product[]) =>{
-      this.allProducts = data;
+    let id:number = this.orderInformation.idEntity;
+    let login:string = this.orderInformation.userSystemData.login;
+    let idProducts:number[] = [];
+    let address:string = this.orderInformation.address;
+    let statusName: string = OrderStatusEnum[this.orderInformation.orderStatus.status];
+
+    this.orderInformation.products.forEach(element => {
+      idProducts.push(element.idEntity);
+    });
+
+    let orderRequest: OrderRequest = new OrderRequest(id, login, idProducts, address, statusName);
+    this.orderServer.update(orderRequest, jwt).subscribe(data =>{
+      this.orderMessage = 'Order updated successfully';
+
     },
       error => { 
         this.orderMessage = this.serverErrorsService.processError(error);
       } );
-
-  }
-
-  productInformationSave(productInformation: ProductInformation){
-
-    this.orderMessage = '';
-
-    let jwt:string = this.localStorageService.getJwt();
-
-    // if(this.typeActionEnum == typeActionEnum.show){
-
-    //   this.productInformationServer.create(productInformation, jwt).subscribe((data:any) => {
-    //       this.OrderMessage = 'Product information successfully created';
-    //       this.productInformation.productName = '';
-    //       this.productInformation.description = '';
-    //       this.productInformation.imageLocalSource = '';
-    //       this.productInformation.productCategories = [];
-    //     },
-    //     error => {
-    //       this.OrderMessage = this.serverErrorsService.processError(error);
-    //     } 
-    //   );
-    // }
-
-    // if(this.typeActionEnum == typeActionEnum.update){
-
-    //   this.productInformationServer.update(productInformation, jwt).subscribe((data:any) => {
-    //       this.OrderMessage = 'Product information updated successfully';
-    //     },
-    //     error => {
-    //       this.OrderMessage = this.serverErrorsService.processError(error);
-    //     });
-    // }
 
   }
 

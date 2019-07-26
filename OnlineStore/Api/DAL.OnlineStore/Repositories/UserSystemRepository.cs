@@ -33,8 +33,7 @@ namespace DAL.OnlineStore.Repositories
 
 		public UserSystem GetUserByLoginPasswordhash(string login, string passwordHash)
 		{
-			//try
-			//{
+			
 			var loginParam = new SqlParameter
 			{
 				ParameterName = "@Login",
@@ -51,23 +50,13 @@ namespace DAL.OnlineStore.Repositories
 
 			return user;
 
-			//}
-			//catch (Exception e)
-			//{
-			//	DoRepositoryEvent(
-			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(GetUserByLoginPasswordhash)}",
-			//		$"Ошибка при получении сущности {nameof(UserSystem)}",
-			//		$"Текст исключения: {e.Message}");
-
-			//	return null;
-			//}
+			
 		}
 
 
 		public int? Insert(UserSystem item)
 		{
-			//try
-			//{
+			
 			var firstNameParam = new SqlParameter
 			{
 				ParameterName = "@FirstName",
@@ -105,29 +94,13 @@ namespace DAL.OnlineStore.Repositories
 			}
 
 			return result;
-			//}
-			//catch (Exception e)
-			//{
-			//	DoRepositoryEvent(
-			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Insert)}",
-			//		$"Ошибка при создании сущности {nameof(UserSystem)}",
-			//		$"Текст исключения: {e.Message}");
-
-			//	return null;
-			//}
+			
 		}
 		public bool Update(UserSystem item)
 		{
-
 			if (!item.IdEntity.HasValue)
-			{
+				throw new Exception($"Exception in {nameof(UserSystemRepository)}-{nameof(Update)}: id must be more 0");
 
-				return false;
-			}
-
-
-			//try
-			//{
 
 			var idParam = new SqlParameter
 			{
@@ -164,27 +137,13 @@ namespace DAL.OnlineStore.Repositories
 
 			return resultCommand != null && (int)resultCommand == 1;
 
-			//}
-			//catch (Exception e)
-			//{
-			//	DoRepositoryEvent(
-			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Insert)}",
-			//		$"Ошибка при создании сущности {nameof(UserSystem)}",
-			//		$"Текст исключения: {e.Message}");
-
-			//	return false;
-			//}
+			
 		}
 		public bool Delete(int id)
 		{
 			if (id < 1)
-			{
+				throw new Exception($"Exception in {nameof(UserSystemRepository)}-{nameof(Delete)}: id must be more 0");
 
-				return false;
-			}
-
-			//try
-			//{
 
 			var idParam = new SqlParameter
 			{
@@ -195,23 +154,15 @@ namespace DAL.OnlineStore.Repositories
 			var resultCommand = ExecuteCommand(SpDelete, idParam);
 
 			return resultCommand != null && (int)resultCommand == 1;
-			//}
-			//catch (Exception e)
-			//{
-			//	DoRepositoryEvent(
-			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Delete)}",
-			//		$"Ошибка при удалении сущности {nameof(UserSystem)}",
-			//		$"Текст инсключения: {e.Message}");
-
-			//	return false;
-			//}
+			
 		}
 
 
 		public UserSystem SelectById(int id)
 		{
-			//try
-			//{
+			if (id < 1)
+				throw new Exception($"Exception in {nameof(UserSystemRepository)}-{nameof(SelectById)}: id must be more 0");
+
 			var idParam = new SqlParameter
 			{
 				ParameterName = "@IdEntity",
@@ -221,55 +172,26 @@ namespace DAL.OnlineStore.Repositories
 			var user = ReadUser(SpSelectById, idParam);
 
 			return user;
-			//}
-			//catch (Exception e)
-			//{
-			//	DoRepositoryEvent(
-			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(SelectById)}",
-			//		$"Ошибка при получении сущности {nameof(UserSystem)}",
-			//		$"Текст исключения: {e.Message}");
-
-			//	return null;
-			//}
+			
 
 		}
 		public List<UserSystem> SelectAll()
 		{
-			//try
-			//{
+			
 			var users = ReadUsers(SpSelectAll);
 
 			return users;
-			//}
-			//catch (Exception e)
-			//{
-			//	DoRepositoryEvent(
-			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(SelectAll)}",
-			//		$"Ошибка при получении списка сущностей {nameof(UserSystem)}",
-			//		$"Текст исключения: {e.Message}");
-
-			//	return null;
-			//}
+			
 		}
 		public List<UserSystem> Find(Func<UserSystem, bool> predicate)
 		{
-			//try
-			//{
+			
 			var listTemp = ReadUsers(SpSelectAll);
 
 			var users = listTemp.Where(predicate);
 
 			return users.ToList();
-			//}
-			//catch (Exception e)
-			//{
-			//	DoRepositoryEvent(
-			//		$"DAL.OnlineStore - {nameof(UserSystemRepository)} - {nameof(Find)}",
-			//		$"Ошибка при поиске в списке сущностей {nameof(UserSystem)}",
-			//		$"Текст исключения: {e.Message}");
-
-			//	return null;
-			//}
+			
 		}
 
 

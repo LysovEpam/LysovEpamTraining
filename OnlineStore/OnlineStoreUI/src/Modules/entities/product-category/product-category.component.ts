@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Subscription, identity } from 'rxjs';
+import { Component } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ProductCategory } from 'src/model/entities/apiEntities/productCategory';
 import { LocalStorageService } from 'src/services/localstorage.service';
@@ -90,7 +90,6 @@ export class ProductCategoryComponent {
         },
         error => {
           this.productCategoryMessage = this.serverErrorsService.processError(error); 
-          // console.log(error); 
         } 
       );
 
@@ -103,10 +102,7 @@ export class ProductCategoryComponent {
       },
       error => {
         this.productCategoryMessage = this.serverErrorsService.processError(error); 
-        // console.log(error); 
-      }
-      
-      );
+      } );
     }
 
   }

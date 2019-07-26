@@ -46,7 +46,7 @@ export class StoreComponent implements OnInit {
     this.priceMin = 0;
     this.priceMax = 0;
 
-    this.selectStatus = this.allStatus[1];
+    this.selectStatus = this.allStatus[2];
     this.selectCategories = [];
 
     this.loadOutletProducts();
@@ -84,24 +84,34 @@ export class StoreComponent implements OnInit {
 
   loadOutletProducts(){
 
-    let statuses: string[] = [];
+    let statuses: string[] = [ProductStatusEnum[ProductStatusEnum.Available]];
     let idProductCategory:number[] = [];
 
     if(this.selectStatus == this.allStatus[0]){
       statuses = [ProductStatusEnum[ProductStatusEnum.Available]];
     }
-    if(this.selectStatus == this.allStatus[1]){
+    else if(this.selectStatus == this.allStatus[1]){
       statuses = [ProductStatusEnum[ProductStatusEnum.Available], 
       ProductStatusEnum[ProductStatusEnum.NeedToOrder]];
     }
-    if(this.selectStatus == this.allStatus[2]){
+    else if(this.selectStatus == this.allStatus[2]){
       statuses = [ProductStatusEnum[ProductStatusEnum.Available], 
       ProductStatusEnum[ProductStatusEnum.NeedToOrder], 
       ProductStatusEnum[ProductStatusEnum.NotAvailable]];
     }
-      this.selectCategories.forEach(element => {
-        idProductCategory.push(element.idEntity);
-    });
+    else{
+      statuses = [ProductStatusEnum[ProductStatusEnum.Available]];
+    }
+
+    this.selectCategories.forEach(element => {
+        idProductCategory.push(element.idEntity); });
+
+    if(isNaN(Number(this.priceMin))){
+      this.priceMin = 0;
+    }
+    if(isNaN(Number(this.priceMax))){
+      this.priceMax = 0;
+    }
 
     this.router.navigate(['store/products'], {
       queryParams:{

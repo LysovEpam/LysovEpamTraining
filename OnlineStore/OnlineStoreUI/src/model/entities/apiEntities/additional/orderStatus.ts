@@ -37,6 +37,20 @@ export class OrderStatus {
         return allStatus;
     }
 
+    static getAllOrderStatusEnum():OrderStatusEnum[]{
+
+        let allStatus: OrderStatusEnum[] = [
+            OrderStatusEnum.NewOrder,
+            OrderStatusEnum.Processed,
+            OrderStatusEnum.Paid,
+            OrderStatusEnum.WaitingForDelivery,
+            OrderStatusEnum.Canceled,
+            OrderStatusEnum.Fulfilled
+        ]
+
+        return allStatus;
+    }
+
 }
 
 export enum OrderStatusEnum {

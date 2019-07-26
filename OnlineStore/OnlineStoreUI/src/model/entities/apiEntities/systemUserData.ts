@@ -7,14 +7,14 @@ export class SystemUserData{
     login: string;
     status: string;
     role: string;
-    password:string;
+    oldPassword:string;
     newPassword:string;
 
     constructor( idUser:number,
         firstName: string, lastName: string, 
         email: string, phone: string, 
         status: string, role: string,
-        login: string,  password:string, newPassword:string){
+        login: string,  oldPassword:string, newPassword:string){
         
         this.idUser = idUser;
         this.firstName = firstName;
@@ -24,7 +24,7 @@ export class SystemUserData{
         this.login = login;
         this.status = status;
         this.role = role;
-        this.password = password;
+        this.oldPassword = oldPassword;
         this.newPassword = newPassword;
     }
 	

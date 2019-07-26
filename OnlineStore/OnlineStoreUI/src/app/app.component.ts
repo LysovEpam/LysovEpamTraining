@@ -3,10 +3,8 @@
  import { LocalStorageService } from 'src/services/localstorage.service';
  import { Subscription } from 'rxjs';
  import { Router, ActivatedRoute } from '@angular/router';
- import { UserRole } from 'src/model/entities/apiEntities/additional/userRole';
  import { UserRoleEnum } from 'src/model/entities/apiEntities/additional/userRole';
- import { DemoMaterialModule } from 'src/material-module';
-     
+
  
 @Component({
     selector: 'my-app', 
@@ -16,8 +14,7 @@
 
 export class AppComponent implements OnInit { 
 
-    //loggedIn = false;
-    
+   
     loggedUser = false;
     loggedEditor = false;
     loggedAdmin = false;

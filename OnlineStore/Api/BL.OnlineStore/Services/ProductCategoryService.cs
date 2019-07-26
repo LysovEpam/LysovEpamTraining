@@ -12,13 +12,13 @@ namespace BL.OnlineStore.Services
 		private readonly IDbContext _dbContext;
 
 		public ProductCategoryService(IDbContext dbContext)
-			
+
 		{
 			_dbContext = dbContext;
-			
+
 		}
-		
-		public (ServiceResult actionResult,  ProductCategory productCategory) GetById(int id)
+
+		public (ServiceResult actionResult, ProductCategory productCategory) GetById(int id)
 		{
 			var productCategory = _dbContext.ProductCategories.SelectById(id);
 
@@ -29,19 +29,22 @@ namespace BL.OnlineStore.Services
 			else
 				actionResult = new ServiceResult(ServiceResult.ResultConnectionEnum.Correct, "");
 
-			return (actionResult , productCategory);
+			return (actionResult, productCategory);
 		}
 		public (ServiceResult actionResult, List<ProductCategory> productCategories) GetAll()
 		{
+
 			var list = _dbContext.ProductCategories.SelectAll();
 
 			ServiceResult actionResult;
 
 			if (list == null)
-				actionResult = new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError, "");
+				actionResult = new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError, "Internal server error");
 			else
 				actionResult = new ServiceResult(ServiceResult.ResultConnectionEnum.Correct, "");
 			return (actionResult, list);
+
+
 		}
 		public (ServiceResult actionResult, List<ProductCategory> productCategories) SearchCategory(string searchString)
 		{
@@ -69,7 +72,7 @@ namespace BL.OnlineStore.Services
 		}
 
 
-		public ServiceResult SaveNewCategory( ProductCategory productCategory)
+		public ServiceResult SaveNewCategory(ProductCategory productCategory)
 		{
 			var result = _dbContext.ProductCategories.Find(category => category.CategoryName == productCategory.CategoryName);
 			if (result.Count != 0)
@@ -105,7 +108,7 @@ namespace BL.OnlineStore.Services
 						"Product category with that name already exists");
 
 			}
-			
+
 			var updateResult = _dbContext.ProductCategories.Update(productCategory);
 
 			if (!updateResult)
@@ -114,7 +117,7 @@ namespace BL.OnlineStore.Services
 					"Failed to update product category");
 
 			}
-			
+
 			return new ServiceResult(ServiceResult.ResultConnectionEnum.Correct, "");
 		}
 		public ServiceResult DeleteCategory(int id)
@@ -122,7 +125,7 @@ namespace BL.OnlineStore.Services
 
 			var checkDelete = _dbContext.ProductCategories.GetCountDependencies(id);
 
-			if(checkDelete >0)
+			if (checkDelete > 0)
 				return new ServiceResult(ServiceResult.ResultConnectionEnum.SystemError,
 					"Product category cannot be deleted because it is associated with product information.");
 
@@ -140,7 +143,7 @@ namespace BL.OnlineStore.Services
 		}
 
 
-		
+
 
 
 	}

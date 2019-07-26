@@ -46,8 +46,12 @@ export class ApiSettingsService {
     getUrlOrderDeleteOrder():string  {return this.apiUrl + "/Order/DeleteOrder";}
 
 
-
     //System users
-    getUrlUserGetByMyself():string  {return this.apiUrl + "/User/GetByMyself";}
-    getUrlUserUpdateByMyself():string  {return this.apiUrl + "/User/UpdateByMyself";}
+    getUrlUserGetAll():string  {return this.apiUrl + "/User/GetAll";}
+    getUrlUserGetById():string  {return this.apiUrl + "/User/GetById";}
+    getUrlUserGetByToken():string  {return this.apiUrl + "/User/GetByToken";}
+    getUrlUserCreate():string  {return this.apiUrl + "/User/Create";}
+    getUrlUserUpdate():string  {return this.apiUrl + "/User/Update";}
+    getUrlUserDelete():string  {return this.apiUrl + "/User/Delete";}
+   
 }

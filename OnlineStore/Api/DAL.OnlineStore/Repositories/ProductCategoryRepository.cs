@@ -33,6 +33,9 @@ namespace DAL.OnlineStore.Repositories
 		public ProductCategory SelectById(int id)
 		{
 
+			if(id<1)
+				throw new Exception($"Exception in {nameof(ProductCategoryRepository)}-{nameof(SelectById)}: id must be more 0");
+
 			ProductCategory categoryResult = null;
 
 			using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -183,7 +186,9 @@ namespace DAL.OnlineStore.Repositories
 		}
 		public bool Delete(int id)
 		{
-		
+			if (id < 1)
+				throw new Exception($"Exception in {nameof(ProductCategoryRepository)}-{nameof(Delete)}: id must be more 0");
+
 			var idParam = new SqlParameter
 			{
 				ParameterName = "@IdEntity",
@@ -214,7 +219,6 @@ namespace DAL.OnlineStore.Repositories
 
 			return -1;
 
-			
 		}
 	}
 }

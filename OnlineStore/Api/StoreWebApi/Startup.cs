@@ -15,15 +15,19 @@ using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using NLog;
 using StoreWebApi.AuthorizationModel;
+using StoreWebApi.Logger;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace StoreWebApi
 {
 	public class Startup
 	{
+		
 		public Startup(IConfiguration configuration)
 		{
+			LogManager.LoadConfiguration(String.Concat(Directory.GetCurrentDirectory(), "\\Logger\\nlog.config"));
 			Configuration = configuration;
 		}
 
@@ -35,6 +39,7 @@ namespace StoreWebApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 
+			services.AddSingleton<ILoggerManager, LoggerManager>();
 
 			services.AddCors();
 
@@ -95,9 +100,9 @@ namespace StoreWebApi
 			#endregion
 			#region DI
 
+			
+			services.AddTransient<IDbContext>(s => new DbContextCache(Configuration.GetConnectionString("DefaultConnection")));
 			services.AddTransient<IPasswordHash, PasswordHash>();
-			services.AddTransient<IDbContext>(s=> new DbContextCache(ServerConfig.GetStringConnection()));
-
 			services.AddTransient<IRegistrationService, RegistrationService>();
 			services.AddTransient<IAuthorizationService, AuthorizationService>();
 			services.AddTransient<IProductCategoryService, ProductCategoryService>();
@@ -145,13 +150,24 @@ namespace StoreWebApi
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerManager logger)
 		{
 
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 			}
+			else
+			{
+				app.UseHsts();
+			}
+
+			//app.ConfigureExceptionHandler(logger);
+			//app.ConfigureCustomExceptionMiddleware();
+			app.UseMiddleware<ExceptionMiddleware>();
+
+			app.UseHttpsRedirection();
+
 
 			app.UseSwagger();
 
@@ -172,7 +188,7 @@ namespace StoreWebApi
 
 		}
 
-
+		
 
 
 

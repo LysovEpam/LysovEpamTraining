@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BL.OnlineStore.FluentValidation;
 using BLContracts.ActionResults;
 using BLContracts.Services;
 using CommonEntities;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StoreWebApi.AuthorizationModel;
+using StoreWebApi.Logger;
 
 namespace StoreWebApi.Controllers
 {
@@ -16,13 +17,13 @@ namespace StoreWebApi.Controllers
 	public class ProductInformationController : Controller
 	{
 		private readonly IProductInformationService _productInformationService;
-		
+		private readonly ILoggerManager _logger;
 
-		public ProductInformationController(IProductInformationService productInformationService)
+
+		public ProductInformationController(IProductInformationService productInformationService, ILoggerManager logger)
 		{
 			_productInformationService = productInformationService;
-			
-
+			_logger = logger;
 		}
 
 		#region GetById
@@ -45,8 +46,11 @@ namespace StoreWebApi.Controllers
 
 			var blResult = _productInformationService.GetById(id);
 
-			if (blResult.actionResult.ResultConnection !=  ServiceResult.ResultConnectionEnum.Correct)
+			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product information service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			if (blResult.prouductInformation == null)
 				return StatusCode(StatusCodes.Status404NotFound, "The product information does not exist");
@@ -71,11 +75,14 @@ namespace StoreWebApi.Controllers
 		[ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
 		[ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
 		public ActionResult GetList()
-		{ 
+		{
 			var blResult = _productInformationService.GetAll();
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product information service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			if (blResult.productInformations != null && blResult.productInformations.Count == 0)
 				return StatusCode(StatusCodes.Status404NotFound, "Product informations do not exist");
@@ -109,7 +116,10 @@ namespace StoreWebApi.Controllers
 			var blResult = _productInformationService.SearchInformation(searchString);
 
 			if (blResult.actionResult.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product information service error: {blResult.actionResult.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, blResult.actionResult.Message);
+			}
 
 			if (blResult.productInformations != null && blResult.productInformations.Count == 0)
 				return StatusCode(StatusCodes.Status404NotFound, "Product categories do not exist");
@@ -145,25 +155,37 @@ namespace StoreWebApi.Controllers
 			if (productInformation == null)
 				return BadRequest("Input request is empty");
 
-			var validator = new ProductInformationValidator();
-
-			var validationResult = validator.Validate(productInformation);
-
-			if (!validationResult.IsValid)
+			try
 			{
-				string errorMessage = "";
 
-				foreach (var error in validationResult.Errors)
-					errorMessage += error.ErrorMessage + " ";
+				var validator = new ProductInformationValidator();
 
-				return Conflict(errorMessage);
+				var validationResult = validator.Validate(productInformation);
+
+				if (!validationResult.IsValid)
+				{
+					string errorMessage = "";
+
+					foreach (var error in validationResult.Errors)
+						errorMessage += error.ErrorMessage + " ";
+
+					return Conflict(errorMessage);
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError($"Create new product information. Input data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
 			}
 
-			
+
 			ServiceResult result = _productInformationService.SaveNewProductInformation(productInformation);
 
 			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product information service error: {result.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+			}
 
 			return CreatedAtAction(nameof(GetById), new { id = productInformation.IdEntity }, productInformation);
 
@@ -197,24 +219,35 @@ namespace StoreWebApi.Controllers
 			if (productInformation == null)
 				return BadRequest("Input request is empty");
 
-			var validator = new ProductInformationValidator();
-			var validationResult = validator.Validate(productInformation);
-
-			if (!validationResult.IsValid)
+			try
 			{
-				string errorMessage = "";
 
-				foreach (var error in validationResult.Errors)
-					errorMessage += error.ErrorMessage + " ";
+				var validator = new ProductInformationValidator();
+				var validationResult = validator.Validate(productInformation);
 
-				return Conflict(errorMessage);
+				if (!validationResult.IsValid)
+				{
+					string errorMessage = "";
+
+					foreach (var error in validationResult.Errors)
+						errorMessage += error.ErrorMessage + " ";
+
+					return Conflict(errorMessage);
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError($"Update product information failed. Input data failed validation. Full validator exception message: {e.Message}");
+				return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
 			}
 
-			
 			ServiceResult result = _productInformationService.UpdateProductInformation(productInformation);
 
 			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Product information service error: {result.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+			}
 
 			return Ok();
 
@@ -245,11 +278,14 @@ namespace StoreWebApi.Controllers
 			if (id < 1)
 				return BadRequest("Input request is empty");
 
-			
+
 			ServiceResult result = _productInformationService.DeleteProductInformation(id);
 
 			if (result.ResultConnection != ServiceResult.ResultConnectionEnum.Correct)
+			{
+				_logger.LogError($"Delete product information failed. Service error message: {result.Message}");
 				return StatusCode(StatusCodes.Status500InternalServerError, result.Message);
+			}
 
 			return Ok();
 

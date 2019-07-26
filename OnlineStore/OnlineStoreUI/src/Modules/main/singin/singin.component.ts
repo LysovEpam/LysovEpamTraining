@@ -6,7 +6,6 @@ import { AuthorizationService } from 'src/services/authorization.service';
 import { AuthorizationResult } from 'src/model/entities/apiResults/AuthorizationResult';
 import { LocalStorageService } from 'src/services/localstorage.service';
 import { ServerErrorsService } from 'src/services/server-errors.service';
-import { UserRoleEnum, UserRole } from 'src/model/entities/apiEntities/additional/userRole';
 
 @Component({
   selector: 'app-singin',
@@ -57,11 +56,7 @@ export class SinginComponent implements OnInit {
 
   processingServerResult(data:AuthorizationResult) {
 
-
-     
     this.localStorageService.saveAuthorizationUser(data.userLogin, data.userRole.role.toString(), data.jwt, data.dateTimeAuthorizationFinish);
-
-   
 
       this.router.navigate(['']
       , {

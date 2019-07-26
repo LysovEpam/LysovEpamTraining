@@ -6,16 +6,16 @@ namespace CommonEntities.Additional
 	{
 
 		public const string StatusActive = "Active";
-		public const string StatusBlockTimeOut = "Block time out";
-		public const string StatusBlockNewAuthorization = "Block new authorization";
-		public const string StatusBlockSystem = "Block system";
+		public const string StatusBlockTimeOut = "BlockTimeOut";
+		public const string StatusBlockNewAuthorization = "BlockNewAuthorization";
+		public const string StatusBlockSystem = "BlockSystem";
 
 		public enum AuthorizationStatusEnum
 		{
-			Active = 0,
-			BlockTimeOut = 1,
-			BlockNewAuthorization = 2,
-			BlockSystem =3
+			Active = 10,
+			BlockTimeOut = 11,
+			BlockNewAuthorization = 12,
+			BlockSystem =13
 		}
 
 		public AuthorizationStatusEnum Status { get; }

@@ -7,9 +7,7 @@ import { MatDialog} from '@angular/material/dialog';
 import { DialogData, ConfirmDialog } from '../../dialog-modules/confirm-dialog/confirm-dialog';
 import { Router } from '@angular/router';
 import { LocalStorageService } from 'src/services/localstorage.service';
-import { ProductCategoryServerService } from 'src/services/product-category-server.service';
 import { ProductInformation } from 'src/model/entities/apiEntities/productInformation';
-import { MessageDialog } from 'src/Modules/dialog-modules/message-dialog/message-dialog';
 import { ProductInformationServerService } from 'src/services/product-information-server.service';
 import { ServerErrorsService } from 'src/services/server-errors.service';
 import { CategoryDialogData, CategoryDialog } from 'src/Modules/dialog-modules/category-dialog/category-dialog';
@@ -20,6 +18,7 @@ import { CategoryDialogData, CategoryDialog } from 'src/Modules/dialog-modules/c
   templateUrl: './product-informations.component.html',
   styleUrls: ['./product-informations.component.css']
 })
+
 export class ProductInformationsComponent implements OnInit {
 
   productInformationMessage:string;

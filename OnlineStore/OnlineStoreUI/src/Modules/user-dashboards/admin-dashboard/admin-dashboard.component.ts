@@ -48,6 +48,17 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  usersShowAll(){
+    this.router.navigate(['/users']);
+  }
+
+  userCreateNew(){
+    this.router.navigate(['/user'], {
+      queryParams:{
+        'action': 'create'
+      }
+    });
+  }
   
 
 

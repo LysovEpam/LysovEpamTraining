@@ -69,6 +69,7 @@ namespace BL.OnlineStore.Services
 
 			UserAuthorizationToken userToken = new UserAuthorizationToken(DateTime.Now, DateTime.Now.Add(_timeKeyWork),
 				sessionToken, new AuthorizationStatus(AuthorizationStatus.AuthorizationStatusEnum.Active),
+				// ReSharper disable once PossibleInvalidOperationException
 				userSystem.IdEntity.Value);
 
 			var cancelResult = CancelOldSessionToken(userSystem.IdEntity.Value);

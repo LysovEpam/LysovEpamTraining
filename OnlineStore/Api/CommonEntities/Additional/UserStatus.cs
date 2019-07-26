@@ -12,9 +12,9 @@ namespace CommonEntities.Additional
 
 		public enum StatusEnum
 		{
-			Active,
-			Block,
-			Delete
+			Active =10,
+			Block =11,
+			Delete =12
 		}
 
 		public StatusEnum Status { get; }

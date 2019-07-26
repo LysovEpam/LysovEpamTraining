@@ -35,7 +35,7 @@ export class UserDashboardComponent implements OnInit {
   }
 
   updateUserInformation(){
-    
+    this.router.navigate(['/user']);
   }
 
 

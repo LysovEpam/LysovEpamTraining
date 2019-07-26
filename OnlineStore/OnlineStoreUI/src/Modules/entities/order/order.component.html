@@ -1,4 +1,4 @@
-<div class="main-outlet-container">
+<div class="main-container">
     
     <mat-form-field appearance="legacy">
         <mat-label>Order date:</mat-label>
@@ -10,43 +10,42 @@
         <textarea matInput placeholder="Order address" [(ngModel)] = "orderInformation.address"></textarea>
     </mat-form-field>
 
-<!-- <div class="container-select-category">
-    <div>
-        <mat-form-field >
+    <div *ngFor = "let item of orderInformation.products">
+        <div class="container-card-item">
+            <button class="card-item-action" mat-button (click)="showProduct(item)"> show </button>
+            <button class="card-item-action" *ngIf="enableChangeOrder" mat-button (click)="deleteProduct(item)"> delete </button>
+            Product price: {{item.price}}, Product name: {{item.productInformation.productName}}
+        </div>
+    </div>
 
-            <mat-label>Select a category</mat-label>
-            <mat-select [(value)]="selected">                         
-                <mat-option *ngFor = "let item of allProductCategories" [(value)]="item">{{item.categoryName}}</mat-option>
+    <div class="container-status">
+        <mat-form-field appearance="legacy">
+            <mat-label>Order status:</mat-label>
+            <mat-select [(value)]="orderInformation.orderStatus"> 
+                <mat-option *ngFor = "let item of allOrderStatus" [(value)]="item">{{getStatusPrint(item)}}</mat-option>
             </mat-select>
         </mat-form-field>
-                
-        <button mat-button (click)="addCategory(selected)">Add category</button>
+    </div>
 
-    </div> -->
+    <mat-form-field appearance="legacy">
+        <mat-label>User name:</mat-label>
+        <textarea matInput placeholder="Name" [(ngModel)] = "orderInformation.userSystemData.firstName+' '+orderInformation.userSystemData.lastName" readonly></textarea>
+    </mat-form-field>
 
-    <!-- <div class="flex-container">
-        <div *ngFor = "let item of productInformation.productCategories">
+    <mat-form-field appearance="legacy">
+        <mat-label>Phone:</mat-label>
+        <textarea matInput placeholder="Phone" [(ngModel)] = "orderInformation.userSystemData.phone" readonly></textarea>
+    </mat-form-field>
 
-            <div class="container-card-item">
-                <button class="card-item-action" mat-button (click)="showCategory(item)"> show </button>
-                <button class="card-item-action" mat-button (click)="deleteCategory(item)"> delete </button>
-                {{item.categoryName}}
-                
-            </div>
-
-        </div>
-    </div> 
-
-    {{productCategoriesMessage}}
-</div>-->
-
-<!-- <div>
-    <input class="input-image-url" matInput placeholder="Enter product image url" [(ngModel)] = "productInformation.imageLocalSource">
-    <img class="image" src={{productInformation.imageLocalSource}} alt="Picture not found">
-</div> -->
+    <mat-form-field appearance="legacy">
+        <mat-label>Email:</mat-label>
+        <textarea matInput placeholder="Email" [(ngModel)] = "orderInformation.userSystemData.email" readonly></textarea>
+    </mat-form-field>
 
 
-<button mat-button (click)="productInformationSave(productInformation)">{{buttonSaveText}}</button>
+
+
+<button mat-button *ngIf="enableChangeOrder" (click)="orderSave()">{{buttonSaveText}}</button>
 
 {{orderMessage}}
 
