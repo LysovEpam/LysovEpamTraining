@@ -101,7 +101,7 @@ namespace StoreWebApi
 			#region DI
 
 			
-			services.AddTransient<IDbContext>(s => new DbContextCache(Configuration.GetConnectionString("DefaultConnection")));
+			services.AddTransient<IDbContext>(s => new DbContext(Configuration.GetConnectionString("DefaultConnection")));
 			services.AddTransient<IPasswordHash, PasswordHash>();
 			services.AddTransient<ISessionTokenGenerate, SessionTokenGenerate>();
 			services.AddTransient<IRegistrationService, RegistrationService>();
